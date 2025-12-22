@@ -26,7 +26,7 @@ from cappuccino import Plugin
 class UptimeKuma(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
-        self._webhook: str | None = self.config.get("webhook", None)
+        self._webhook: str = self.config.get("webhook", None)
         self._interval: int = self.config.get("interval", 30)
 
     @irc3.event(rfc.CONNECTED)

@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-<a href="LICENSE"><img src="https://img.shields.io/github/license/TheReverend403/cappuccino?style=flat-square" alt="GitHub"></a>
-<a href="https://github.com/TheReverend403/cappuccino/actions"><img src="https://img.shields.io/github/actions/workflow/status/TheReverend403/cappuccino/build-docker-image.yml?branch=main&style=flat-square" alt="GitHub Workflow Status"></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/lwatsondev/cappuccino?style=flat-square" alt="GitHub"></a>
+<a href="https://github.com/lwatsondev/cappuccino/actions"><img src="https://img.shields.io/github/actions/workflow/status/lwatsondev/cappuccino/build-docker-image.yml?branch=main&style=flat-square" alt="GitHub Workflow Status"></a>
 <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/badge/code%20style-ruff-000000.svg?style=flat-square" alt="Code style: ruff"></a>
 </p>
 
@@ -23,7 +23,7 @@ Requirements:
 First, install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```sh
-git clone https://github.com/TheReverend403/cappuccino
+git clone https://github.com/lwatsondev/cappuccino
 cd cappuccino
 
 uv sync --group dev
