@@ -3,6 +3,6 @@
     "extends": [
         "config:recommended",
         ":labels(dependencies)",
-        ":dependencyDashboard"
+        ":disableDependencyDashboard"
     ]
 }
