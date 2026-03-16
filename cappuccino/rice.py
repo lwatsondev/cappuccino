@@ -157,7 +157,7 @@ class Rice(Plugin):
             try:
                 index = _from_user_index(args["<id>"])
                 value = self.bot.get_user_value(user, category)[index]
-            except (ValueError, IndexError, TypeError):
+            except ValueError, IndexError, TypeError:
                 return "Invalid ID."
             value = style(value, reset=True)
             return f"{user_tag} {value}"

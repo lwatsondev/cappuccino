@@ -34,7 +34,7 @@ def is_chanop(botcontext, channel: str, nick: str) -> bool:
         try:
             if nick in botcontext.channels[channel].modes[mode.value]:
                 return True
-        except (KeyError, AttributeError):
+        except KeyError, AttributeError:
             continue
 
     return False
