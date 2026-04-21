@@ -52,13 +52,14 @@ services:
       POSTGRES_USER: "${POSTGRES_USER:-cappuccino}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-cappuccino}"
     volumes:
-      - "./data/postgresql:/var/lib/postgresql/data"
+      - "./data/postgresql/18:/var/lib/postgresql/18/docker"
     networks:
       - "cappuccino"
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "pg_isready -q --dbname=$$POSTGRES_DB --username=$$POSTGRES_USER --host=$$POSTGRES_HOST"
+        - "pg_isready -q --dbname=$$POSTGRES_DB --username=$$POSTGRES_USER
+          --host=$$POSTGRES_HOST"
       start_period: "5s"
       start_interval: "1s"
       interval: "10s"

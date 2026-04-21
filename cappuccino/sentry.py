@@ -15,7 +15,7 @@
 
 import irc3
 import sentry_sdk
-from requests import RequestException
+from niquests import RequestException
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 from cappuccino import Plugin

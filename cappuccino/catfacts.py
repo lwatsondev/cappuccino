@@ -17,7 +17,7 @@ import random
 
 import irc3
 from irc3.plugins.command import command
-from requests import RequestException
+from niquests import AsyncSession, RequestException
 
 from cappuccino import Plugin
 
@@ -32,31 +32,31 @@ class CatFacts(Plugin):
         self._limit: int = self.config.get("limit", 1000)
         self._max_length: int = self.config.get("max_length", 200)
         self._api_url: str = self.config.get("api_url", "https://catfact.ninja/facts")
+        self._session: AsyncSession = AsyncSession()
 
-    def _get_cat_fact(self) -> str:
+    async def _get_cat_fact(self) -> str:
         if not self._cache:
             self.logger.debug("Fetching cat facts.")
             request_parameters = {"limit": self._limit}
             if self._max_length > 0:
                 request_parameters.update({"max_length": self._max_length})
 
-            with self.requests.get(
-                self._api_url, params=request_parameters
-            ) as response:
-                self._cache = [fact["fact"] for fact in response.json()["data"]]
-                random.shuffle(self._cache)
-                self.logger.debug(f"Loaded {len(self._cache)} facts.")
+            response = await self._session.get(self._api_url, params=request_parameters)
+            response.raise_for_status()
+            self._cache = [fact["fact"] for fact in response.json()["data"]]
+            random.shuffle(self._cache)
+            self.logger.debug(f"Loaded {len(self._cache)} facts.")
 
         return self._cache.pop()
 
     @command(permission="view")
-    def catfact(self, mask, target, args):
+    async def catfact(self, mask, target, args):
         """Grab a random cat fact.
 
         %%catfact
         """
 
         try:
-            yield self._get_cat_fact()
+            return await self._get_cat_fact()
         except RequestException:
-            yield "Something went horribly wrong while I was researching cat facts. :("
+            return "Something went horribly wrong while I was researching cat facts. :("

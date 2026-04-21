@@ -13,12 +13,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import secrets
 import subprocess
 
 import irc3
-import requests
 from irc3.plugins.command import command
+from niquests import AsyncSession, RequestException
 
 from cappuccino import Plugin
 
@@ -28,36 +29,41 @@ def _is_multiline_string(text: str):
     return text.count("\n") > 1
 
 
-def _exec_wrapper(cmd: dict, input_data: str | None = None) -> str:
-    if input_data:
-        input_data = input_data.encode("UTF-8")
-
-    proc = subprocess.run(  # noqa: S603
-        cmd,
-        input=input_data,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        timeout=5,
-        check=False,
+async def _exec_wrapper(cmd: list[str], input_data: str | None = None) -> str:
+    proc = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdin=asyncio.subprocess.PIPE if input_data else None,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
     )
-    return proc.stdout.decode("UTF-8").strip()
+    stdin_data = input_data.encode("UTF-8") if input_data else None
+    try:
+        stdout, _ = await asyncio.wait_for(proc.communicate(stdin_data), timeout=5)
+    except TimeoutError as ex:
+        proc.kill()
+        raise subprocess.TimeoutExpired(cmd, 5) from ex
+    return stdout.decode("UTF-8").strip()
 
 
 @irc3.plugin
 class ExecShell(Plugin):
     requires = ["irc3.plugins.command"]
 
+    def __init__(self, bot):
+        super().__init__(bot)
+        self._session: AsyncSession = AsyncSession()
+
     @command(
         permission="admin", show_in_help_list=False, options_first=True, use_shlex=True
     )
-    def exec(self, mask, target, args):
+    async def exec(self, mask, target, args):
         """Run a system command and upload the output to 0x0.st.
 
         %%exec <command>...
         """
 
         try:
-            output = _exec_wrapper(args["<command>"])
+            output = await _exec_wrapper(args["<command>"])
             if not output:
                 return f"{mask.nick}: Command returned no output."
 
@@ -66,17 +72,13 @@ class ExecShell(Plugin):
                 return f"{mask.nick}: {output}"
 
             # Upload multiline output to 0x0.st to avoid flooding channels.
-            result = self.requests.post(
+            result = await self._session.post(
                 "https://0x0.st",
                 files={"file": (f"cappuccino-{secrets.token_hex()}.txt", output)},
-                expires=1,
+                data={"expires": 1},
             )
 
-        except (
-            FileNotFoundError,
-            requests.RequestException,
-            subprocess.TimeoutExpired,
-        ) as ex:
+        except (FileNotFoundError, RequestException, subprocess.TimeoutExpired) as ex:
             return f"{mask.nick}: {ex}"
 
         return f"{mask.nick}: {result.text}"

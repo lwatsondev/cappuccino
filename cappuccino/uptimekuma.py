@@ -16,8 +16,9 @@
 import asyncio
 
 import irc3
-from httpx import URL, AsyncClient, HTTPError
 from irc3 import rfc
+from niquests import AsyncSession
+from niquests.exceptions import HTTPError
 
 from cappuccino import Plugin
 
@@ -26,8 +27,9 @@ from cappuccino import Plugin
 class UptimeKuma(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
-        self._webhook: str = self.config.get("webhook", None)
+        self._webhook: str | None = self.config.get("webhook", None)
         self._interval: int = self.config.get("interval", 30)
+        self._session: AsyncSession = AsyncSession()
 
     @irc3.event(rfc.CONNECTED)
     def _on_connect(
@@ -37,16 +39,16 @@ class UptimeKuma(Plugin):
             self.bot.create_task(self._ping_loop())
 
     async def ping(self, message: str = "OK", status: str = "up"):
-        async with AsyncClient(timeout=5) as client:
-            request_params = {"status": status, "msg": message}
-            request_url = URL(self._webhook, params=request_params)
-            self.logger.debug(f"Pinging {request_url}")
-            try:
-                response = await client.get(request_url)
-                response.raise_for_status()
-                self.logger.debug("Ping succeeded.")
-            except HTTPError:
-                self.logger.exception("Ping failed.")
+        request_params = {"status": status, "msg": message}
+        self.logger.debug(f"Pinging {self._webhook}")
+        try:
+            response = await self._session.get(
+                self._webhook, params=request_params, timeout=5
+            )
+            response.raise_for_status()
+            self.logger.debug("Ping succeeded.")
+        except HTTPError:
+            self.logger.exception("Ping failed.")
 
     async def _ping_loop(self):
         self.logger.info(f"Pinging Uptime Kuma every {self._interval} seconds.")

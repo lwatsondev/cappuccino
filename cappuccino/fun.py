@@ -18,7 +18,7 @@ import re
 
 import irc3
 from irc3.plugins.command import command
-from requests import RequestException
+from niquests import AsyncSession, RequestException
 
 from cappuccino import Plugin
 from cappuccino.util.formatting import Color, style
@@ -53,6 +53,10 @@ _EIGHTBALL_RESPONSES = [
 @irc3.plugin
 class Fun(Plugin):
     requires = ["irc3.plugins.command"]
+
+    def __init__(self, bot):
+        super().__init__(bot)
+        self._session: AsyncSession = AsyncSession()
 
     def _reply(self, target: str, message: str):
         # Only reply a certain percentage of the time. AKA rate-limiting. Sort of.
@@ -184,17 +188,18 @@ class Fun(Plugin):
         )
 
     @command(permission="view", aliases=["whatthecommit"])
-    def wtc(self, mask, target, args):
+    async def wtc(self, mask, target, args):
         """Grab a random commit message.
 
         %%wtc
         """
 
         try:
-            with self.requests.get("https://whatthecommit.com/index.txt") as response:
-                yield f'git commit -m "{response.text.strip()}"'
+            response = await self._session.get("https://whatthecommit.com/index.txt")
+            response.raise_for_status()
+            return f'git commit -m "{response.text.strip()}"'
         except RequestException:
-            yield (
+            return (
                 "Failed to fetch a random git commit."
                 " Sorry, you'll have to figure one out yourself."
             )
