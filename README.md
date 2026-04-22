@@ -14,10 +14,6 @@ A set of <a href="https://github.com/gawel/irc3">irc3</a> plugins providing vari
 
 # Installation
 
-Requirements:
-
-- PostgreSQL
-
 ## Setting up the dev environment
 
 First, install [uv](https://docs.astral.sh/uv/getting-started/installation/).
