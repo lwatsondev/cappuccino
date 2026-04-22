@@ -58,7 +58,8 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 FROM app-base AS development
 
-ENV DEBUG=true
+ENV CAPPUCCINO_DEBUG=true \
+    CAPPUCCINO_RAW=true
 
 RUN --mount=type=cache,target=${UV_CACHE_DIR} \
     uv sync --no-install-project
