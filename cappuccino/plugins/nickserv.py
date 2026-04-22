@@ -27,7 +27,7 @@ class NickServ(Plugin):
         password = self.config.get("password", None)
         if not password:
             self.logger.warning(
-                "This nick is registered but no nickserv password is set in config.ini"
+                "This nick is registered but no nickserv password is set so I cannot authenticate."
             )
             return
 
