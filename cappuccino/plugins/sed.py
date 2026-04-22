@@ -19,7 +19,7 @@ from collections import deque
 
 import irc3
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import Color, style
 
 _SED_PRIVMSG = r"\s*s[/|\\!\.,\\].+"

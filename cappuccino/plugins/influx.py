@@ -20,7 +20,7 @@ import irc3
 from influxdb_client import InfluxDBClient, Point
 from irc3 import rfc
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 
 if TYPE_CHECKING:
     from irc3.utils import IrcString

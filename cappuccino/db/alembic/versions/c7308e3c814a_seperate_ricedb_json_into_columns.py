@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy import select, update
 
 from alembic import op
-from cappuccino.userdb import RiceDB
+from cappuccino.db.models.userdb import RiceDB
 
 # revision identifiers, used by Alembic.
 revision = "c7308e3c814a"

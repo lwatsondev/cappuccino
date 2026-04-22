@@ -20,7 +20,7 @@ import irc3
 from irc3.plugins.command import command
 from niquests import AsyncSession, RequestException
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import Color, style
 
 _RANDOM_CHANCE = 0.33

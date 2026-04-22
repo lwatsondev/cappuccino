@@ -25,8 +25,8 @@ from sqlalchemy import (
     update,
 )
 
-from cappuccino import Plugin
 from cappuccino.db.models.userdb import RiceDB
+from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import unstyle
 
 try:

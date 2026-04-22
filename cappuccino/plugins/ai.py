@@ -27,8 +27,8 @@ from irc3.utils import IrcString
 from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 
-from cappuccino import Plugin
 from cappuccino.db.models.ai import AIChannel, CorpusLine
+from cappuccino.plugins import Plugin
 from cappuccino.util.channel import is_chanop
 from cappuccino.util.formatting import unstyle
 

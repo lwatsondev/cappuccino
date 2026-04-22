@@ -20,7 +20,7 @@ from irc3 import rfc
 from niquests import AsyncSession
 from niquests.exceptions import HTTPError
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 
 
 @irc3.plugin

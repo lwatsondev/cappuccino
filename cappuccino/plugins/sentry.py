@@ -18,7 +18,7 @@ import sentry_sdk
 from niquests import RequestException
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 from cappuccino.util import meta
 
 

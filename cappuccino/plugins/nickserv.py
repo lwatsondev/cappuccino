@@ -15,7 +15,7 @@
 
 import irc3
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 
 
 @irc3.plugin

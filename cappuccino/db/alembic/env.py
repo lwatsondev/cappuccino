@@ -1,5 +1,3 @@
-import configparser
-import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
@@ -9,6 +7,7 @@ from cappuccino.db.models import BaseModel
 from cappuccino.db.models.ai import AIChannel, CorpusLine  # noqa: F401
 from cappuccino.db.models.triggers import Trigger  # noqa: F401
 from cappuccino.db.models.userdb import RiceDB  # noqa: F401
+from cappuccino.settings import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -53,10 +52,8 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    bot_config = configparser.ConfigParser()
-    bot_config.read(os.getenv("SETTINGS_FILE", "config.ini"))
     alembic_config = config.get_section(config.config_ini_section)
-    alembic_config["sqlalchemy.url"] = bot_config["database"]["uri"]
+    alembic_config["sqlalchemy.url"] = settings.get("database.uri")
     connectable = engine_from_config(
         alembic_config,
         prefix="sqlalchemy.",

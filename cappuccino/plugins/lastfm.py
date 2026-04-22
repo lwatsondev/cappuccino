@@ -17,7 +17,7 @@ import irc3
 import pylast
 from irc3.plugins.command import command
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import style, truncate_with_ellipsis
 
 _DB_KEY = "lastfm"
@@ -37,7 +37,7 @@ def _add_lastfm_suffix(irc_username: str, lastfm_username: str) -> str:
 
 @irc3.plugin
 class LastFM(Plugin):
-    requires = ["irc3.plugins.command", "cappuccino.userdb"]
+    requires = ["irc3.plugins.command", "cappuccino.plugins.userdb"]
 
     def __init__(self, bot):
         super().__init__(bot)

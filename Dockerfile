@@ -41,14 +41,14 @@ ARG META_SOURCE
 ENV META_VERSION="${META_VERSION}" \
     META_COMMIT="${META_COMMIT}" \
     META_SOURCE="${META_SOURCE}" \
-    SETTINGS_FILE="/tmp/config.ini" \
-    SETTINGS_SOURCE_FILE="/config/config.ini"
+    ROOT_PATH_FOR_DYNACONF="/config" \
+    SETTINGS_FILES_FOR_DYNACONF='["/app/cappuccino/config/default.toml", "*.toml"]'
 
 ADD . .
 RUN ln -s /app/docker/rootfs/* /
 
 RUN --mount=type=cache,target=${UV_CACHE_DIR} \
-    uv sync --no-install-project --no-dev --group docker
+    uv sync --no-install-project --no-dev
 
 VOLUME ["/config"]
 EXPOSE 1337
@@ -61,7 +61,7 @@ FROM app-base AS development
 ENV DEBUG=true
 
 RUN --mount=type=cache,target=${UV_CACHE_DIR} \
-    uv sync --no-install-project --group docker
+    uv sync --no-install-project
 
 
 FROM app-base AS production

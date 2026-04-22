@@ -35,7 +35,7 @@ from humanize import naturalsize
 from niquests import AsyncSession, RequestException
 from niquests.cookies import RequestsCookieJar
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 from cappuccino.util import meta
 from cappuccino.util.formatting import Color, style, truncate_with_ellipsis, unstyle
 

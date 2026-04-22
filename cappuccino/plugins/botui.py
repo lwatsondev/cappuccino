@@ -16,7 +16,7 @@
 import irc3
 from irc3.plugins.command import command
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 from cappuccino.util import meta
 
 

@@ -11,6 +11,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Secrets
+.secrets.toml
+
 # Environments
 .env
 .venv

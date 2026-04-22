@@ -19,8 +19,8 @@ import irc3
 from irc3.plugins.command import command
 from sqlalchemy import delete, func, select, update
 
-from cappuccino import Plugin
 from cappuccino.db.models.triggers import Trigger
+from cappuccino.plugins import Plugin
 from cappuccino.util.channel import is_chanop
 from cappuccino.util.formatting import Color, style
 

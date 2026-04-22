@@ -19,7 +19,7 @@ import irc3
 from irc3.plugins.command import command
 from niquests import AsyncSession, RequestException
 
-from cappuccino import Plugin
+from cappuccino.plugins import Plugin
 
 
 @irc3.plugin

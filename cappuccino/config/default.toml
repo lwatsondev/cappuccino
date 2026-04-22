@@ -1,0 +1,71 @@
+##
+## Configuration can be done here or via env vars.
+## Env var usage is documented here: https://www.dynaconf.com/envvars/
+## Env var prefix is 'CAPPUCCINO_', not 'DYNACONF_'. Use '__' as a separator for nested keys.
+## Examples: CAPPUCCINO_HOST, CAPPUCCINO_DATABASE__URI, CAPPUCCINO_PLUGINS__NICKSERV__PASSWORD
+##
+
+nick = "cappuccino_test"
+username = "cappuccino_test"
+realname = "cappuccino_test"
+password = ""
+
+host = ""
+port = 6697
+ssl = true
+
+autojoins = []
+
+includes = [
+    "cappuccino.plugins.nickserv",
+    "cappuccino.plugins.botui",
+    "cappuccino.plugins.rice",
+    "cappuccino.plugins.lastfm",
+    "cappuccino.plugins.fun",
+    "cappuccino.plugins.catfacts",
+    "cappuccino.plugins.sed",
+    "cappuccino.plugins.ai",
+    "cappuccino.plugins.seen",
+    "cappuccino.plugins.triggers",
+    "cappuccino.plugins.urlinfo",
+    "irc3.plugins.ctcp",
+]
+
+[ctcp]
+version = "cappuccino (https://github.com/lwatsondev/cappuccino)"
+
+[database]
+uri = ""
+
+[plugins.nickserv]
+password = ""
+
+[plugins.lastfm]
+api_key = ""
+
+[plugins.urlinfo]
+ignore_nicks = []
+ignore_hostnames = []
+fake_useragent_hostnames = []
+
+[plugins.sentry]
+dsn = ""
+
+[plugins.userdb]
+enable_http_server = false
+http_host = "127.0.0.1"
+http_port = 8080
+
+[plugins.influx]
+url = ""
+org = ""
+bucket = ""
+token = ""
+
+[irc3.plugins.command]
+cmd = "."
+antiflood = true
+guard = "irc3.plugins.command.mask_based_policy"
+
+[irc3.plugins.command.masks]
+"*" = "view"
