@@ -1,7 +1,7 @@
 import asyncio
-import json
 from http import HTTPStatus
 
+import orjson
 import pytest
 import pytest_check as check
 from aiohttp import web
@@ -42,7 +42,7 @@ def test_json_dump_includes_set_values(bot):
     bot.set_user_value("jsonuser", "lastfm", "scrobbler")
     bot.set_user_value("jsonuser", "dtops", ["http://dt.local/screenshot"])
 
-    data = json.loads(bot.get_plugin(UserDB)._build_json())  # noqa: SLF001
+    data = orjson.loads(bot.get_plugin(UserDB)._build_json())  # noqa: SLF001
     user = next(u for u in data if u["nick"] == "jsonuser")
 
     check.equal(user["lastfm"], "scrobbler")
@@ -52,7 +52,7 @@ def test_json_dump_includes_set_values(bot):
 def test_json_dump_excludes_null_fields(bot):
     bot.set_user_value("nulluser", "lastfm", "scrobbler")
 
-    data = json.loads(bot.get_plugin(UserDB)._build_json())  # noqa: SLF001
+    data = orjson.loads(bot.get_plugin(UserDB)._build_json())  # noqa: SLF001
     user = next(u for u in data if u["nick"] == "nulluser")
 
     assert "dtops" not in user
@@ -61,7 +61,7 @@ def test_json_dump_excludes_null_fields(bot):
 def test_json_dump_last_seen_is_timestamp(bot):
     bot.set_user_value("tsuser", "lastfm", "scrobbler")
 
-    data = json.loads(bot.get_plugin(UserDB)._build_json())  # noqa: SLF001
+    data = orjson.loads(bot.get_plugin(UserDB)._build_json())  # noqa: SLF001
     user = next(u for u in data if u["nick"] == "tsuser")
 
     assert isinstance(user["last_seen"], float)

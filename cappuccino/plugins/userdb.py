@@ -16,6 +16,7 @@
 import asyncio
 
 import irc3
+import orjson
 from aiohttp import web
 from irc3 import rfc
 from sqlalchemy import (
@@ -30,11 +31,6 @@ from sqlalchemy import (
 from cappuccino.db.models.userdb import RiceDB
 from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import unstyle
-
-try:
-    import ujson as json
-except ImportError:
-    import json
 
 
 def _serialize_user(user: RiceDB) -> dict:
@@ -100,14 +96,14 @@ class UserDB(Plugin):
     async def _json_handler(self, request: web.Request) -> web.Response:
         loop = asyncio.get_running_loop()
         data = await loop.run_in_executor(None, self._build_json)
-        return web.Response(text=data, content_type="application/json")
+        return web.Response(body=data, content_type="application/json")
 
-    def _build_json(self) -> str:
+    def _build_json(self) -> bytes:
         with self.db_session() as session:
             users = session.scalars(
                 select(RiceDB).order_by(nullslast(desc(RiceDB.last_seen)))
             ).all()
-        return json.dumps([_serialize_user(u) for u in users])
+        return orjson.dumps([_serialize_user(u) for u in users])
 
     @irc3.extend
     def get_user_value(self, username: str, key: str):
