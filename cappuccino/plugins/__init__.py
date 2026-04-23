@@ -17,10 +17,12 @@ import logging
 import os
 from typing import TYPE_CHECKING
 
+from niquests import AsyncSession
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from cappuccino.settings import settings
+from cappuccino.util import meta
 
 if TYPE_CHECKING:
     from irc3 import IrcBot
@@ -32,6 +34,10 @@ class Plugin:
         self.bot = bot
         self._plugin_name = plugin_module.split(".")[-1]
         self.logger = logging.getLogger(f"irc3.{plugin_module}")
+        self._requests: AsyncSession = AsyncSession(
+            timeout=5,
+            headers={"User-Agent": f"cappuccino/{meta.VERSION} (+{meta.SOURCE})"},
+        )
 
         db_config = self.bot.config.get("database", {})
         db = create_engine(

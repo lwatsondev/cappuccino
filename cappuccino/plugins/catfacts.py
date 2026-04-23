@@ -17,7 +17,7 @@ import random
 
 import irc3
 from irc3.plugins.command import command
-from niquests import AsyncSession, RequestException
+from niquests import RequestException
 
 from cappuccino.plugins import Plugin
 
@@ -29,7 +29,6 @@ class CatFacts(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
         self._cache: list[str] = []
-        self._session: AsyncSession = AsyncSession()
 
     def after_reload(self):
         self._cache.clear()
@@ -44,7 +43,7 @@ class CatFacts(Plugin):
             if max_length > 0:
                 request_parameters.update({"max_length": max_length})
 
-            response = await self._session.get(api_url, params=request_parameters)
+            response = await self._requests.get(api_url, params=request_parameters)
             response.raise_for_status()
             self._cache = [fact["fact"] for fact in response.json()["data"]]
             random.shuffle(self._cache)

@@ -18,7 +18,7 @@ import re
 
 import irc3
 from irc3.plugins.command import command
-from niquests import AsyncSession, RequestException
+from niquests import RequestException
 
 from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import Color, style
@@ -56,7 +56,6 @@ class Fun(Plugin):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self._session: AsyncSession = AsyncSession()
 
     def _reply(self, target: str, message: str):
         # Only reply a certain percentage of the time. AKA rate-limiting. Sort of.
@@ -195,7 +194,7 @@ class Fun(Plugin):
         """
 
         try:
-            response = await self._session.get("https://whatthecommit.com/index.txt")
+            response = await self._requests.get("https://whatthecommit.com/index.txt")
             response.raise_for_status()
             return f'git commit -m "{response.text.strip()}"'
         except RequestException:

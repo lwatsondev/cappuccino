@@ -17,7 +17,6 @@ import asyncio
 
 import irc3
 from irc3 import rfc
-from niquests import AsyncSession
 from niquests.exceptions import HTTPError
 
 from cappuccino.plugins import Plugin
@@ -27,7 +26,6 @@ from cappuccino.plugins import Plugin
 class UptimeKuma(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
-        self._session: AsyncSession = AsyncSession()
         self._ping_task: asyncio.Task | None = None
 
     @irc3.event(rfc.CONNECTED)
@@ -58,7 +56,7 @@ class UptimeKuma(Plugin):
         request_params = {"status": status, "msg": message}
         self.logger.debug(f"Pinging {webhook}")
         try:
-            response = await self._session.get(
+            response = await self._requests.get(
                 webhook, params=request_params, timeout=5
             )
             response.raise_for_status()

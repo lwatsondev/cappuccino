@@ -32,11 +32,10 @@ from urllib.parse import urlparse
 import bs4
 import irc3
 from humanize import naturalsize
-from niquests import AsyncSession, RequestException
+from niquests import RequestException
 from niquests.cookies import RequestsCookieJar
 
 from cappuccino.plugins import Plugin
-from cappuccino.util import meta
 from cappuccino.util.formatting import Color, style, truncate_with_ellipsis, unstyle
 
 
@@ -54,6 +53,13 @@ class ContentTypeNotAllowedError(Exception):
 
 class RequestTimeout(RequestException):
     pass
+
+
+__RESPONSE_MAX_BYTES = 10 * 1000 * 1000  # 10M
+__URL_REGEX = re.compile(r"https?://\S+", re.IGNORECASE | re.UNICODE)
+__HTML_MIMETYPES = ["text/html", "application/xhtml+xml"]
+__REQUEST_CHUNK_SIZE = 1024  # Bytes
+__ALLOWED_CONTENT_TYPES = ["text", "video", "application"]
 
 
 def _clean_url(url: str):
@@ -81,27 +87,23 @@ def _extract_site_name_from_soup(soup: bs4.BeautifulSoup):
 
 @irc3.plugin
 class UrlInfo(Plugin):
-    _max_bytes = 10 * 1000 * 1000  # 10M
-    _url_regex = re.compile(r"https?://\S+", re.IGNORECASE | re.UNICODE)
-    _max_title_length = 300
-    _request_timeout = 5
-    _html_mimetypes = ["text/html", "application/xhtml+xml"]
-    _request_chunk_size = 1024  # Bytes
-    _allowed_content_types = ["text", "video", "application"]
-
     def __init__(self, bot):
         super().__init__(bot)
-        self._real_user_agent: str = f"cappuccino {meta.VERSION} - {meta.SOURCE}"
         self._cookie_jar = RequestsCookieJar()
+        # Set a consent cookie for YouTube to bypass the EU cookie wall, which interferes with title extraction by returning a 403.
         self._cookie_jar.set(
             "CONSENT", f"YES+srp.gws-20210512-0-RC3.en+FX+{1 + randbelow(1000)}"
         )
-        self._session: AsyncSession = AsyncSession()
-        self._session.cookies.update(self._cookie_jar)
-        self._session.headers.update({"Accept-Language": "en-GB,en-US,en;q=0.5"})
+        self._requests.cookies.update(self._cookie_jar)
+        self._requests.headers.update(
+            {
+                "Accept-Language": "en-GB,en-US,en;q=0.5",
+                "User-Agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
+            }
+        )
 
     @irc3.event(
-        rf"(?iu):(?P<mask>\S+!\S+@\S+) PRIVMSG (?P<target>#\S+) :(?P<data>.*{_url_regex.pattern}).*"
+        rf"(?iu):(?P<mask>\S+!\S+@\S+) PRIVMSG (?P<target>#\S+) :(?P<data>.*{__URL_REGEX.pattern}).*"
     )
     async def on_url(self, mask, target, data):  # noqa: C901
         if mask.nick in self.config.get("ignore_nicks", "").split() or data.startswith(
@@ -109,7 +111,7 @@ class UrlInfo(Plugin):
         ):
             return
 
-        urls = [_clean_url(url) for url in set(self._url_regex.findall(data))] or []
+        urls = [_clean_url(url) for url in set(__URL_REGEX.findall(data))] or []
         for url in urls:
             if urlparse(url).hostname in self.config.get("ignore_hostnames", []):
                 urls.remove(url)
@@ -152,7 +154,7 @@ class UrlInfo(Plugin):
                 if title is not None:
                     title = style(title, bold=True)
                     reply = f"[ {hostname} ] {title}"
-                    if (size and mimetype) and mimetype not in self._html_mimetypes:
+                    if (size and mimetype) and mimetype not in __HTML_MIMETYPES:
                         size = naturalsize(size)
                         reply = f"{reply} ({size} - {mimetype})"
                     messages.append(reply)
@@ -163,11 +165,11 @@ class UrlInfo(Plugin):
 
     async def _stream_response(self, response) -> str:
         content = StringIO()
-        async for chunk in await response.iter_content(self._request_chunk_size):
+        async for chunk in await response.iter_content(__REQUEST_CHUNK_SIZE):
             if not chunk:
                 continue
             content_length = content.write(chunk.decode("UTF-8", errors="ignore"))
-            if content_length > self._max_bytes:
+            if content_length > __RESPONSE_MAX_BYTES:
                 size = naturalsize(content_length)
                 raise ResponseBodyTooLarge(
                     f"Couldn't find the page title within {size}."
@@ -184,23 +186,7 @@ class UrlInfo(Plugin):
         await self._validate_ip_address(hostname)
         hostname = hostname.removeprefix("www.")
 
-        user_agent = (
-            self.config.get(
-                "fake_useragent", "Googlebot/2.1 (+http://www.google.com/bot.html)"
-            )
-            if any(
-                f".{hostname}".endswith(f".{host}")
-                for host in self.config.get("fake_useragent_hostnames", [])
-            )
-            else self._real_user_agent
-        )
-
-        response = await self._session.get(
-            url,
-            stream=True,
-            timeout=self._request_timeout,
-            headers={"User-Agent": user_agent},
-        )
+        response = await self._requests.get(url, stream=True)
         response.raise_for_status()
 
         content_type = response.headers.get("Content-Type")
@@ -231,9 +217,9 @@ class UrlInfo(Plugin):
                 "content-type", content_type
             )
             main_type = header.maintype
-            if main_type not in self._allowed_content_types:
+            if main_type not in __ALLOWED_CONTENT_TYPES:
                 raise ContentTypeNotAllowedError(
-                    f"{main_type} not in {self._allowed_content_types}"
+                    f"{main_type} not in {__ALLOWED_CONTENT_TYPES}"
                 )
 
     async def _extract_title_and_size(self, response, content_type: str):
@@ -251,7 +237,7 @@ class UrlInfo(Plugin):
                 "content-disposition", content_disposition
             )
             title = header.params.get("filename")
-        elif mimetype in self._html_mimetypes or mimetype == "text/plain":
+        elif mimetype in __HTML_MIMETYPES or mimetype == "text/plain":
             content = await self._stream_response(response)
             if content and not size:
                 size = len(content.encode("UTF-8"))
@@ -260,17 +246,19 @@ class UrlInfo(Plugin):
             title = _extract_title_from_soup(soup)
 
             site_name = _extract_site_name_from_soup(soup)
-            if (site_name and len(site_name) < (site_name_max_size := 16)) and (
+            site_name_max_size = self.config.get("max_site_name_length", 16)
+            if (site_name and len(site_name) < site_name_max_size) and (
                 len(site_name) > site_name_max_size
             ):
                 site_name = truncate_with_ellipsis(title, site_name_max_size)
 
-            if not title and (content and mimetype not in self._html_mimetypes):
+            if not title and (content and mimetype not in __HTML_MIMETYPES):
                 title = re.sub(r"\s+", " ", " ".join(content.split("\n")))
 
         if title:
             title = unstyle(html.unescape(title).strip())
-            if len(title) > self._max_title_length:
-                title = truncate_with_ellipsis(title, self._max_title_length)
+            max_title_length = self.config.get("max_title_length", 300)
+            if len(title) > max_title_length:
+                title = truncate_with_ellipsis(title, max_title_length)
 
         return title, size

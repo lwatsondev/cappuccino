@@ -46,7 +46,6 @@ api_key = ""
 [plugins.urlinfo]
 ignore_nicks = []
 ignore_hostnames = []
-fake_useragent_hostnames = []
 
 [plugins.sentry]
 dsn = ""
