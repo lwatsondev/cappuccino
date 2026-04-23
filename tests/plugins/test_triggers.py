@@ -83,3 +83,16 @@ def test_trigger_response(bot, db_session):
     )
     assert row.response == "Hello there!"
     assert any("Hello there!" in line for line in bot.sent)
+
+
+def test_trigger_response_inline(bot):
+    with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
+        bot.test(
+            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set inline Inline response!",
+            show=False,
+        )
+    bot.test(
+        ":otheruser!user@host PRIVMSG #channel :hey can someone explain ?inline to me?",
+        show=False,
+    )
+    assert any("Inline response!" in line for line in bot.sent)
