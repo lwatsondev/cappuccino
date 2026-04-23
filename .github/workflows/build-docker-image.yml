@@ -4,9 +4,9 @@ name: "Build and push Docker image"
 on: # yamllint disable-line rule:truthy
   push:
     branches:
-      - "main"
+      - "*"
     tags:
-      - "*.*"
+      - "*"
   pull_request:
     branches:
       - "main"
