@@ -26,7 +26,9 @@ def test_unknown_user(bot, db_session):
     bot.test(":nick!user@host PRIVMSG #channel :!seen unseennick", show=False)
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "unseennick"))
     assert row is None
-    assert any("haven't seen" in line for line in bot.sent)
+    assert any(
+        "I haven't seen any activity from unseennick yet." in line for line in bot.sent
+    )
 
 
 def test_known_user(bot):
@@ -35,4 +37,4 @@ def test_known_user(bot):
         ":querynick!user@host PRIVMSG #channel :!seen knownuser",
         show=False,
     )
-    assert any("knownuser" in line and "last seen" in line for line in bot.sent)
+    assert any("knownuser was last seen" in line for line in bot.sent)

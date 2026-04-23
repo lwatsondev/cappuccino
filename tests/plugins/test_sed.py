@@ -55,4 +55,4 @@ def test_invalid_command_sends_notice(bot):
 def test_replacement_too_long(bot):
     bot.test(":nick!user@host PRIVMSG #channel :x", show=False)
     bot.test(f":nick!user@host PRIVMSG #channel :s/x/${'a' * 300}/", show=False)
-    assert any("too long" in line for line in bot.sent)
+    assert any("Replacement would be too long." in line for line in bot.sent)

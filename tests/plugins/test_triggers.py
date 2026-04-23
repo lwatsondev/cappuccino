@@ -13,7 +13,7 @@ def bot(make_bot):
     return make_bot(PLUGINS)
 
 
-def test_trigger_set(bot, db_session):
+def test_set(bot, db_session):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
             ":nick!user@host PRIVMSG #channel :!trigger set hello world",
@@ -29,7 +29,7 @@ def test_trigger_set(bot, db_session):
     assert any("Trigger 'hello' set." in line for line in bot.sent)
 
 
-def test_trigger_delete(bot, db_session):
+def test_delete(bot, db_session):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
             ":nick!user@host PRIVMSG #channel :!trigger set deltrigger goodbye",
@@ -45,10 +45,10 @@ def test_trigger_delete(bot, db_session):
         .where(Trigger.channel == "#channel")
     )
     assert row is None
-    assert any("Deleted trigger" in line for line in bot.sent)
+    assert any("Deleted trigger 'deltrigger'." in line for line in bot.sent)
 
 
-def test_trigger_list(bot):
+def test_list(bot):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
             ":nick!user@host PRIVMSG #channel :!trigger set listtrigger a response",
@@ -65,7 +65,7 @@ def test_trigger_list(bot):
     assert any("listtrigger" in line and "listtrigger2" in line for line in bot.sent)
 
 
-def test_trigger_response(bot, db_session):
+def test_response(bot, db_session):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
             ":nick!user@host PRIVMSG #channel :!trigger set greet Hello there!",
@@ -81,7 +81,7 @@ def test_trigger_response(bot, db_session):
     assert any("Hello there!" in line for line in bot.sent)
 
 
-def test_trigger_response_inline(bot):
+def test_response_inline(bot):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
             ":nick!user@host PRIVMSG #channel :!trigger set inline Inline response!",
