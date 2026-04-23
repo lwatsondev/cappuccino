@@ -75,13 +75,13 @@ def test_trigger_response(bot, db_session):
             f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set greet Hello there!",
             show=False,
         )
-    bot.test(":otheruser!user@host PRIVMSG #channel :?greet", show=False)
     row = db_session.scalar(
         select(Trigger)
         .where(Trigger.name == "greet")
         .where(Trigger.channel == "#channel")
     )
     assert row.response == "Hello there!"
+    bot.test(":otheruser!user@host PRIVMSG #channel :?greet", show=False)
     assert any("Hello there!" in line for line in bot.sent)
 
 

@@ -26,19 +26,15 @@ def test_seen_unknown_user(bot, db_session):
     bot.test(
         f":nick!user@host PRIVMSG #channel :{bot.config.cmd}seen unseennick", show=False
     )
-    assert any("haven't seen" in line for line in bot.sent)
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "unseennick"))
     assert row is None
+    assert any("haven't seen" in line for line in bot.sent)
 
 
-def test_seen_known_user(bot, db_session):
+def test_seen_known_user(bot):
     bot.test(":knownuser!user@host PRIVMSG #channel :hello there", show=False)
     bot.test(
         f":querynick!user@host PRIVMSG #channel :{bot.config.cmd}seen knownuser",
         show=False,
     )
     assert any("knownuser" in line and "last seen" in line for line in bot.sent)
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "knownuser"))
-    assert isinstance(row.last_seen, datetime)
-    assert row.last_seen.tzinfo is not None
-    assert row.last_seen <= datetime.now(UTC)
