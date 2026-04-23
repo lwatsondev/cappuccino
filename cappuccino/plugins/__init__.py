@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from cappuccino.settings import settings
+
 if TYPE_CHECKING:
     from irc3 import IrcBot
 
@@ -28,7 +30,7 @@ class Plugin:
     def __init__(self, bot: IrcBot):
         plugin_module = self.__class__.__module__
         self.bot = bot
-        self.config: dict = self.bot.config.get(plugin_module, {})
+        self._plugin_name = plugin_module.split(".")[-1]
         self.logger = logging.getLogger(f"irc3.{plugin_module}")
 
         db_config = self.bot.config.get("database", {})
@@ -41,3 +43,8 @@ class Plugin:
 
         if self.config:
             self.logger.debug(f"Configuration for {plugin_module}: {self.config}")
+
+    @property
+    def config(self) -> dict:
+        plugins = settings.get("PLUGINS") or {}
+        return getattr(plugins, self._plugin_name, {})

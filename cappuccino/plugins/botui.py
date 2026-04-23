@@ -17,6 +17,7 @@ import irc3
 from irc3.plugins.command import command
 
 from cappuccino.plugins import Plugin
+from cappuccino.settings import settings
 from cappuccino.util import meta
 
 
@@ -109,6 +110,17 @@ class BotUI(Plugin):
         for channel in self.bot.channels:
             self.bot.privmsg(channel, f"[PSA] {message}")
         self.logger.info(f"Sent PSA requested by {mask}: {message}")
+
+    @command(permission="admin", show_in_help_list=False, name="reload")
+    def _reload(self, mask, target, args):
+        """Reload config and plugins.
+
+        %%reload
+        """
+        settings.reload()
+        self.bot.reload()
+        self.logger.info(f"Config reloaded by {mask}")
+        return "Config reloaded."
 
     @command(permission="view")
     def ping(self, mask, target, args):
