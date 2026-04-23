@@ -47,13 +47,13 @@ def test_dtop_show(bot, db_session):
         f":targetuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set https://target.local",
         show=False,
     )
+    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "targetuser"))
+    assert row.dtops == ["https://target.local"]
 
     bot.test(
         f":queryuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop targetuser",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "targetuser"))
-    assert row.dtops == ["https://target.local"]
     assert any("https://target.local" in line for line in bot.sent)
 
 

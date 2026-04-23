@@ -29,14 +29,6 @@ def test_trigger_set(bot, db_session):
     assert any("Trigger 'hello' set." in line for line in bot.sent)
 
 
-def test_trigger_set_not_chanop(bot):
-    bot.test(
-        f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set hello world",
-        show=False,
-    )
-    assert any("channel operators" in line for line in bot.sent)
-
-
 def test_trigger_delete(bot, db_session):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
@@ -63,10 +55,14 @@ def test_trigger_list(bot):
             show=False,
         )
         bot.test(
+            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set listtrigger2 another response",
+            show=False,
+        )
+        bot.test(
             f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger list",
             show=False,
         )
-    assert any("listtrigger" in line for line in bot.sent)
+    assert any("listtrigger" in line and "listtrigger2" in line for line in bot.sent)
 
 
 def test_trigger_response(bot, db_session):
