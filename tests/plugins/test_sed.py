@@ -23,36 +23,36 @@ def test_edit_no_match_returns_original():
     assert _edit("hello world", "s/xyz/abc/") == "hello world"
 
 
-def test_sed_self_correction(bot):
+def test_self_correction(bot):
     bot.test(":nick!user@host PRIVMSG #channel :hello world", show=False)
     bot.test(":nick!user@host PRIVMSG #channel :s/hello/goodbye/", show=False)
     assert any("goodbye world" in line for line in bot.sent)
 
 
-def test_sed_other_user_correction(bot):
+def test_other_user_correction(bot):
     bot.test(":alice!user@host PRIVMSG #channel :i like cats", show=False)
     bot.test(":bob!user@host PRIVMSG #channel :s/cats/dogs/", show=False)
     assert any("thinks alice" in line and "dogs" in line for line in bot.sent)
 
 
-def test_sed_no_match_no_output(bot):
+def test_no_match_no_output(bot):
     bot.test(":nick!user@host PRIVMSG #channel :hello world", show=False)
     bot.test(":nick!user@host PRIVMSG #channel :s/xyz/abc/", show=False)
     assert not bot.sent
 
 
-def test_sed_no_history_no_output(bot):
+def test_no_history_no_output(bot):
     bot.test(":nick!user@host PRIVMSG #channel :s/hello/world/", show=False)
     assert not bot.sent
 
 
-def test_sed_invalid_command_sends_notice(bot):
+def test_invalid_command_sends_notice(bot):
     bot.test(":nick!user@host PRIVMSG #channel :hello world", show=False)
     bot.test(":nick!user@host PRIVMSG #channel :s/(/replacement/", show=False)
     assert any("NOTICE" in line for line in bot.sent)
 
 
-def test_sed_replacement_too_long(bot):
+def test_replacement_too_long(bot):
     bot.test(":nick!user@host PRIVMSG #channel :x", show=False)
     bot.test(f":nick!user@host PRIVMSG #channel :s/x/${'a' * 300}/", show=False)
     assert any("too long" in line for line in bot.sent)

@@ -13,7 +13,7 @@ def bot(make_bot):
     return make_bot(PLUGINS)
 
 
-def test_seen_records_activity(bot, db_session):
+def test_records_activity(bot, db_session):
     bot.test(":seenuser!user@host PRIVMSG #channel :hello there", show=False)
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "seenuser"))
     assert row is not None
@@ -22,7 +22,7 @@ def test_seen_records_activity(bot, db_session):
     assert row.last_seen <= datetime.now(UTC)
 
 
-def test_seen_unknown_user(bot, db_session):
+def test_unknown_user(bot, db_session):
     bot.test(
         f":nick!user@host PRIVMSG #channel :{bot.config.cmd}seen unseennick", show=False
     )
@@ -31,7 +31,7 @@ def test_seen_unknown_user(bot, db_session):
     assert any("haven't seen" in line for line in bot.sent)
 
 
-def test_seen_known_user(bot):
+def test_known_user(bot):
     bot.test(":knownuser!user@host PRIVMSG #channel :hello there", show=False)
     bot.test(
         f":querynick!user@host PRIVMSG #channel :{bot.config.cmd}seen knownuser",
