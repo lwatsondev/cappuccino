@@ -10,7 +10,7 @@ def bot(make_bot):
 
 def test_decide_or_delimiter(bot):
     bot.test(
-        f":nick!user@host PRIVMSG #channel :{bot.config.cmd}decide cats or dogs",
+        ":nick!user@host PRIVMSG #channel :!decide cats or dogs",
         show=False,
     )
     assert any(
@@ -20,7 +20,7 @@ def test_decide_or_delimiter(bot):
 
 def test_decide_pipe_delimiter(bot):
     bot.test(
-        f":nick!user@host PRIVMSG #channel :{bot.config.cmd}decide cats|dogs|fish",
+        ":nick!user@host PRIVMSG #channel :!decide cats|dogs|fish",
         show=False,
     )
     assert any(
@@ -31,7 +31,7 @@ def test_decide_pipe_delimiter(bot):
 
 def test_decide_comma_delimiter(bot):
     bot.test(
-        f":nick!user@host PRIVMSG #channel :{bot.config.cmd}decide cats, dogs",
+        ":nick!user@host PRIVMSG #channel :!decide cats, dogs",
         show=False,
     )
     assert any(
@@ -41,7 +41,7 @@ def test_decide_comma_delimiter(bot):
 
 def test_decide_single_option_fallback(bot):
     bot.test(
-        f":nick!user@host PRIVMSG #channel :{bot.config.cmd}decide onlyone",
+        ":nick!user@host PRIVMSG #channel :!decide onlyone",
         show=False,
     )
     assert any(

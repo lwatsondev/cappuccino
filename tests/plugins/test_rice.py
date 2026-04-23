@@ -13,7 +13,7 @@ def bot(make_bot):
 
 def test_add(bot, db_session):
     bot.test(
-        f":nick!user@host PRIVMSG #channel :{bot.config.cmd}dtop --add https://test.local",
+        ":nick!user@host PRIVMSG #channel :!dtop --add https://test.local",
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "nick"))
@@ -22,7 +22,7 @@ def test_add(bot, db_session):
 
 def test_set(bot, db_session):
     bot.test(
-        f":setuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set https://test.local",
+        ":setuser!user@host PRIVMSG #channel :!dtop --set https://test.local",
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "setuser"))
@@ -31,11 +31,11 @@ def test_set(bot, db_session):
 
 def test_delete(bot, db_session):
     bot.test(
-        f":deleteuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set https://test.local",
+        ":deleteuser!user@host PRIVMSG #channel :!dtop --set https://test.local",
         show=False,
     )
     bot.test(
-        f":deleteuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --delete 1",
+        ":deleteuser!user@host PRIVMSG #channel :!dtop --delete 1",
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "deleteuser"))
@@ -44,14 +44,14 @@ def test_delete(bot, db_session):
 
 def test_show(bot, db_session):
     bot.test(
-        f":targetuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set https://target.local",
+        ":targetuser!user@host PRIVMSG #channel :!dtop --set https://target.local",
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "targetuser"))
     assert row.dtops == ["https://target.local"]
 
     bot.test(
-        f":queryuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop targetuser",
+        ":queryuser!user@host PRIVMSG #channel :!dtop targetuser",
         show=False,
     )
     assert any("https://target.local" in line for line in bot.sent)
@@ -59,12 +59,12 @@ def test_show(bot, db_session):
 
 def test_delete_by_index_multiple(bot, db_session):
     bot.test(
-        f":multiuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set"
-        f" https://a.local https://b.local https://c.local",
+        ":multiuser!user@host PRIVMSG #channel :!dtop --set"
+        " https://a.local https://b.local https://c.local",
         show=False,
     )
     bot.test(
-        f":multiuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --delete 2",
+        ":multiuser!user@host PRIVMSG #channel :!dtop --delete 2",
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "multiuser"))
@@ -73,12 +73,12 @@ def test_delete_by_index_multiple(bot, db_session):
 
 def test_delete_wildcard(bot, db_session):
     bot.test(
-        f":wildcarduser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set"
-        f" https://a.local https://b.local",
+        ":wildcarduser!user@host PRIVMSG #channel :!dtop --set"
+        " https://a.local https://b.local",
         show=False,
     )
     bot.test(
-        f":wildcarduser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --delete *",
+        ":wildcarduser!user@host PRIVMSG #channel :!dtop --delete *",
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "wildcarduser"))
@@ -87,11 +87,11 @@ def test_delete_wildcard(bot, db_session):
 
 def test_replace(bot, db_session):
     bot.test(
-        f":replaceuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set https://original.local",
+        ":replaceuser!user@host PRIVMSG #channel :!dtop --set https://original.local",
         show=False,
     )
     bot.test(
-        f":replaceuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --replace 1 https://replaced.local",
+        ":replaceuser!user@host PRIVMSG #channel :!dtop --replace 1 https://replaced.local",
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "replaceuser"))

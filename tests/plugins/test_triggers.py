@@ -16,7 +16,7 @@ def bot(make_bot):
 def test_trigger_set(bot, db_session):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set hello world",
+            ":nick!user@host PRIVMSG #channel :!trigger set hello world",
             show=False,
         )
     row = db_session.scalar(
@@ -32,11 +32,11 @@ def test_trigger_set(bot, db_session):
 def test_trigger_delete(bot, db_session):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set deltrigger goodbye",
+            ":nick!user@host PRIVMSG #channel :!trigger set deltrigger goodbye",
             show=False,
         )
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger del deltrigger",
+            ":nick!user@host PRIVMSG #channel :!trigger del deltrigger",
             show=False,
         )
     row = db_session.scalar(
@@ -51,15 +51,15 @@ def test_trigger_delete(bot, db_session):
 def test_trigger_list(bot):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set listtrigger a response",
+            ":nick!user@host PRIVMSG #channel :!trigger set listtrigger a response",
             show=False,
         )
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set listtrigger2 another response",
+            ":nick!user@host PRIVMSG #channel :!trigger set listtrigger2 another response",
             show=False,
         )
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger list",
+            ":nick!user@host PRIVMSG #channel :!trigger list",
             show=False,
         )
     assert any("listtrigger" in line and "listtrigger2" in line for line in bot.sent)
@@ -68,7 +68,7 @@ def test_trigger_list(bot):
 def test_trigger_response(bot, db_session):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set greet Hello there!",
+            ":nick!user@host PRIVMSG #channel :!trigger set greet Hello there!",
             show=False,
         )
     row = db_session.scalar(
@@ -84,7 +84,7 @@ def test_trigger_response(bot, db_session):
 def test_trigger_response_inline(bot):
     with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
         bot.test(
-            f":nick!user@host PRIVMSG #channel :{bot.config.cmd}trigger set inline Inline response!",
+            ":nick!user@host PRIVMSG #channel :!trigger set inline Inline response!",
             show=False,
         )
     bot.test(
