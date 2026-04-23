@@ -55,11 +55,11 @@ class RequestTimeout(RequestException):
     pass
 
 
-__RESPONSE_MAX_BYTES = 10 * 1000 * 1000  # 10M
-__URL_REGEX = re.compile(r"https?://\S+", re.IGNORECASE | re.UNICODE)
-__HTML_MIMETYPES = ["text/html", "application/xhtml+xml"]
-__REQUEST_CHUNK_SIZE = 1024  # Bytes
-__ALLOWED_CONTENT_TYPES = ["text", "video", "application"]
+_RESPONSE_MAX_BYTES = 10 * 1000 * 1000  # 10M
+_URL_REGEX = re.compile(r"https?://\S+", re.IGNORECASE | re.UNICODE)
+_HTML_MIMETYPES = ["text/html", "application/xhtml+xml"]
+_REQUEST_CHUNK_SIZE = 1024  # Bytes
+_ALLOWED_CONTENT_TYPES = ["text", "video", "application"]
 
 
 def _clean_url(url: str):
@@ -103,7 +103,7 @@ class UrlInfo(Plugin):
         )
 
     @irc3.event(
-        rf"(?iu):(?P<mask>\S+!\S+@\S+) PRIVMSG (?P<target>#\S+) :(?P<data>.*{__URL_REGEX.pattern}).*"
+        rf"(?iu):(?P<mask>\S+!\S+@\S+) PRIVMSG (?P<target>#\S+) :(?P<data>.*{_URL_REGEX.pattern}).*"
     )
     async def on_url(self, mask, target, data):  # noqa: C901
         if mask.nick in self.config.get("ignore_nicks", "").split() or data.startswith(
@@ -111,7 +111,7 @@ class UrlInfo(Plugin):
         ):
             return
 
-        urls = [_clean_url(url) for url in set(__URL_REGEX.findall(data))] or []
+        urls = [_clean_url(url) for url in set(_URL_REGEX.findall(data))] or []
         for url in urls:
             if urlparse(url).hostname in self.config.get("ignore_hostnames", []):
                 urls.remove(url)
@@ -154,7 +154,7 @@ class UrlInfo(Plugin):
                 if title is not None:
                     title = style(title, bold=True)
                     reply = f"[ {hostname} ] {title}"
-                    if (size and mimetype) and mimetype not in __HTML_MIMETYPES:
+                    if (size and mimetype) and mimetype not in _HTML_MIMETYPES:
                         size = naturalsize(size)
                         reply = f"{reply} ({size} - {mimetype})"
                     messages.append(reply)
@@ -165,11 +165,11 @@ class UrlInfo(Plugin):
 
     async def _stream_response(self, response) -> str:
         content = StringIO()
-        async for chunk in await response.iter_content(__REQUEST_CHUNK_SIZE):
+        async for chunk in await response.iter_content(_REQUEST_CHUNK_SIZE):
             if not chunk:
                 continue
             content_length = content.write(chunk.decode("UTF-8", errors="ignore"))
-            if content_length > __RESPONSE_MAX_BYTES:
+            if content_length > _RESPONSE_MAX_BYTES:
                 size = naturalsize(content_length)
                 raise ResponseBodyTooLarge(
                     f"Couldn't find the page title within {size}."
@@ -217,9 +217,9 @@ class UrlInfo(Plugin):
                 "content-type", content_type
             )
             main_type = header.maintype
-            if main_type not in __ALLOWED_CONTENT_TYPES:
+            if main_type not in _ALLOWED_CONTENT_TYPES:
                 raise ContentTypeNotAllowedError(
-                    f"{main_type} not in {__ALLOWED_CONTENT_TYPES}"
+                    f"{main_type} not in {_ALLOWED_CONTENT_TYPES}"
                 )
 
     async def _extract_title_and_size(self, response, content_type: str):
@@ -237,7 +237,7 @@ class UrlInfo(Plugin):
                 "content-disposition", content_disposition
             )
             title = header.params.get("filename")
-        elif mimetype in __HTML_MIMETYPES or mimetype == "text/plain":
+        elif mimetype in _HTML_MIMETYPES or mimetype == "text/plain":
             content = await self._stream_response(response)
             if content and not size:
                 size = len(content.encode("UTF-8"))
@@ -252,7 +252,7 @@ class UrlInfo(Plugin):
             ):
                 site_name = truncate_with_ellipsis(title, site_name_max_size)
 
-            if not title and (content and mimetype not in __HTML_MIMETYPES):
+            if not title and (content and mimetype not in _HTML_MIMETYPES):
                 title = re.sub(r"\s+", " ", " ".join(content.split("\n")))
 
         if title:
