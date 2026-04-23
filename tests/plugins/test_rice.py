@@ -57,6 +57,34 @@ def test_show(bot, db_session):
     assert any("https://target.local" in line for line in bot.sent)
 
 
+def test_delete_by_index_multiple(bot, db_session):
+    bot.test(
+        f":multiuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set"
+        f" https://a.local https://b.local https://c.local",
+        show=False,
+    )
+    bot.test(
+        f":multiuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --delete 2",
+        show=False,
+    )
+    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "multiuser"))
+    assert row.dtops == ["https://a.local", "https://c.local"]
+
+
+def test_delete_wildcard(bot, db_session):
+    bot.test(
+        f":wildcarduser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set"
+        f" https://a.local https://b.local",
+        show=False,
+    )
+    bot.test(
+        f":wildcarduser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --delete *",
+        show=False,
+    )
+    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "wildcarduser"))
+    assert row.dtops is None
+
+
 def test_replace(bot, db_session):
     bot.test(
         f":replaceuser!user@host PRIVMSG #channel :{bot.config.cmd}dtop --set https://original.local",
