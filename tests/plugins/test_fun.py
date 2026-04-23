@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 PLUGINS = ["cappuccino.plugins.fun"]
@@ -85,3 +87,24 @@ def test_intensify_already_has_intensifies(bot):
 def test_intensify_too_long(bot):
     bot.test(f":nick!user@host PRIVMSG #channel :[{'a' * 33}]", show=False)
     assert not bot.sent
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "sup",
+        "hey 'sup guys?",
+        "so what's up with that?",
+        "whats up everyone",
+        "yo wassup dude",
+        "wazzup fellas",
+    ],
+)
+def test_gravity(bot, message):
+    with patch("cappuccino.plugins.fun.random.random", return_value=0.0):
+        bot.test(f":nick!user@host PRIVMSG #channel :{message}", show=False)
+    assert any(
+        '"Up" is a direction away from the center of gravity of a celestial object.'
+        in line
+        for line in bot.sent
+    )
