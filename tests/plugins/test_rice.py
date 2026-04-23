@@ -1,4 +1,5 @@
 import pytest
+import pytest_check as check
 from sqlalchemy import select
 
 from cappuccino.db.models.userdb import RiceDB
@@ -48,13 +49,13 @@ def test_show(bot, db_session):
         show=False,
     )
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "targetuser"))
-    assert row.dtops == ["https://target.local"]
+    check.equal(row.dtops, ["https://target.local"])
 
     bot.test(
         ":queryuser!user@host PRIVMSG #channel :!dtop targetuser",
         show=False,
     )
-    assert any("https://target.local" in line for line in bot.sent)
+    check.is_true(any("https://target.local" in line for line in bot.sent))
 
 
 def test_delete_by_index_multiple(bot, db_session):

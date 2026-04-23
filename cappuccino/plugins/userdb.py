@@ -13,9 +13,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
-import threading
+import asyncio
 
-import bottle
+import irc3
+from aiohttp import web
+from irc3 import rfc
 from sqlalchemy import (
     desc,
     func,
@@ -34,34 +36,78 @@ try:
 except ImportError:
     import json
 
-import contextlib
 
-import irc3
+def _serialize_user(user: RiceDB) -> dict:
+    def _coerce(column: str, value):
+        if isinstance(value, list):
+            return [unstyle(v) for v in value]
+        if isinstance(value, str):
+            return unstyle(value)
+        if column == "last_seen":
+            return value.timestamp()
+        return value
 
-
-def _strip_path():
-    bottle.request.environ["PATH_INFO"] = bottle.request.environ["PATH_INFO"].rstrip(
-        "/"
-    )
+    return {
+        column: _coerce(column, attr.value)
+        for column, attr in inspect(user).attrs.items()
+        if attr.value is not None
+    }
 
 
 @irc3.plugin
 class UserDB(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
+        self._server_task: asyncio.Task | None = None
 
+    @irc3.event(rfc.CONNECTED)
+    def _on_connect(self, **kwargs):
+        self._start_server()
+
+    def _start_server(self):
         if self.config.get("enable_http_server", False):
             host = self.config.get("http_host", "127.0.0.1")
             port = int(self.config.get("http_port", 8080))
-            bottle.hook("before_request")(_strip_path)
-            bottle.route("/")(self._json_dump)
-            bottle_thread = threading.Thread(
-                target=bottle.run,
-                kwargs={"quiet": True, "host": host, "port": port},
-                name=f"{__name__} HTTP server",
-                daemon=True,
-            )
-            bottle_thread.start()
+            self.logger.info(f"Starting HTTP server on {host}:{port}.")
+            self._server_task = self.bot.create_task(self._run_server())
+
+    def _stop_server(self):
+        if self._server_task:
+            self.logger.info("Stopping HTTP server.")
+            self._server_task.cancel()
+            self._server_task = None
+
+    def before_reload(self):
+        self._stop_server()
+
+    def after_reload(self):
+        self._start_server()
+
+    async def _run_server(self):
+        host = self.config.get("http_host", "127.0.0.1")
+        port = int(self.config.get("http_port", 8080))
+        app = web.Application()
+        app.router.add_get("/", self._json_handler)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, host, port)
+        await site.start()
+        try:
+            await asyncio.Future()
+        finally:
+            await runner.cleanup()
+
+    async def _json_handler(self, request: web.Request) -> web.Response:
+        loop = asyncio.get_running_loop()
+        data = await loop.run_in_executor(None, self._build_json)
+        return web.Response(text=data, content_type="application/json")
+
+    def _build_json(self) -> str:
+        with self.db_session() as session:
+            users = session.scalars(
+                select(RiceDB).order_by(nullslast(desc(RiceDB.last_seen)))
+            ).all()
+        return json.dumps([_serialize_user(u) for u in users])
 
     @irc3.extend
     def get_user_value(self, username: str, key: str):
@@ -89,33 +135,3 @@ class UserDB(Plugin):
             if user is None:
                 user = RiceDB(nick=username, **{key: value})
                 session.add(user)
-
-    def _json_dump(self):
-        bottle.response.content_type = "application/json"
-
-        data = []
-        with self.db_session() as session:
-            all_users = session.scalars(
-                select(RiceDB).order_by(nullslast(desc(RiceDB.last_seen)))
-            ).all()
-
-        for user in all_users:
-            user_dict = {}
-            for column, value in inspect(user).attrs.items():
-                value = value.value
-                if value is None:
-                    continue
-
-                if column == "last_seen":
-                    value = value.timestamp()
-
-                with contextlib.suppress(TypeError, AttributeError):
-                    value = (
-                        [unstyle(val) for val in value]
-                        if isinstance(value, list)
-                        else unstyle(value)
-                    )
-
-                user_dict[column] = value
-            data.append(user_dict)
-        return json.dumps(data)

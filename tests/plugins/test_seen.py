@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 import pytest
+import pytest_check as check
 from sqlalchemy import select
 
 from cappuccino.db.models.userdb import RiceDB
@@ -17,17 +18,20 @@ def test_records_activity(bot, db_session):
     bot.test(":seenuser!user@host PRIVMSG #channel :hello there", show=False)
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "seenuser"))
     assert row is not None
-    assert isinstance(row.last_seen, datetime)
-    assert row.last_seen.tzinfo is not None
-    assert row.last_seen <= datetime.now(UTC)
+    check.is_instance(row.last_seen, datetime)
+    check.is_not_none(row.last_seen.tzinfo)
+    check.less_equal(row.last_seen, datetime.now(UTC))
 
 
 def test_unknown_user(bot, db_session):
     bot.test(":nick!user@host PRIVMSG #channel :!seen unseennick", show=False)
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "unseennick"))
-    assert row is None
-    assert any(
-        "I haven't seen any activity from unseennick yet." in line for line in bot.sent
+    check.is_none(row)
+    check.is_true(
+        any(
+            "I haven't seen any activity from unseennick yet." in line
+            for line in bot.sent
+        )
     )
 
 

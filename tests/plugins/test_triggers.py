@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+import pytest_check as check
 from sqlalchemy import select
 
 from cappuccino.db.models.triggers import Trigger
@@ -25,8 +26,8 @@ def test_set(bot, db_session):
         .where(Trigger.channel == "#channel")
     )
     assert row is not None
-    assert row.response == "world"
-    assert any("Trigger 'hello' set." in line for line in bot.sent)
+    check.equal(row.response, "world")
+    check.is_true(any("Trigger 'hello' set." in line for line in bot.sent))
 
 
 def test_delete(bot, db_session):
@@ -44,8 +45,8 @@ def test_delete(bot, db_session):
         .where(Trigger.name == "deltrigger")
         .where(Trigger.channel == "#channel")
     )
-    assert row is None
-    assert any("Deleted trigger 'deltrigger'." in line for line in bot.sent)
+    check.is_none(row)
+    check.is_true(any("Deleted trigger 'deltrigger'." in line for line in bot.sent))
 
 
 def test_list(bot):
@@ -76,9 +77,9 @@ def test_response(bot, db_session):
         .where(Trigger.name == "greet")
         .where(Trigger.channel == "#channel")
     )
-    assert row.response == "Hello there!"
+    check.equal(row.response, "Hello there!")
     bot.test(":otheruser!user@host PRIVMSG #channel :?greet", show=False)
-    assert any("Hello there!" in line for line in bot.sent)
+    check.is_true(any("Hello there!" in line for line in bot.sent))
 
 
 def test_response_inline(bot):
