@@ -16,6 +16,7 @@
 import irc3
 import pylast
 from irc3.plugins.command import command
+from pylast import LastFMNetwork
 
 from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import style, truncate_with_ellipsis
@@ -41,13 +42,19 @@ class LastFM(Plugin):
 
     def __init__(self, bot):
         super().__init__(bot)
+        self._lastfm_network: LastFMNetwork | None = None
+        self._lastfm_api_key: str | None = None
 
-        api_key = self.config.get("api_key", None)
+    @property
+    def _lastfm(self) -> LastFMNetwork | None:
+        api_key = self.config.get("api_key")
         if not api_key:
             self.logger.error("Missing last.fm API key")
-            return
-
-        self._lastfm = pylast.LastFMNetwork(api_key=api_key)
+            return None
+        if api_key != self._lastfm_api_key:
+            self._lastfm_network = LastFMNetwork(api_key=api_key)
+            self._lastfm_api_key = api_key
+        return self._lastfm_network
 
     def _set_lastfm_username(self, irc_username: str, lastfm_username: str) -> str:
         """Verify and set a user's last.fm username."""

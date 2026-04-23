@@ -40,7 +40,6 @@ class Rice(Plugin):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self._max_user_entries: int = self.config.get("max_user_entries", 6)
 
     def _generic_db(self, mask, target, args):  # noqa: C901
         # Get name of command _generic_db is being called from.
@@ -54,12 +53,13 @@ class Rice(Plugin):
                 return f"{category} cannot be empty!"
 
         response = None
+        max_user_entries = self.config.get("max_user_entries", 6)
 
         if args["--add"] or args["-a"]:
             values = self.bot.get_user_value(mask.nick, category) or []
-            if len(values) + len(args["<values>"]) > self._max_user_entries:
+            if len(values) + len(args["<values>"]) > max_user_entries:
                 response = (
-                    f"You can only set {self._max_user_entries} {category}!"
+                    f"You can only set {max_user_entries} {category}!"
                     f" Consider deleting or replacing some."
                 )
             else:
@@ -70,9 +70,9 @@ class Rice(Plugin):
 
         elif args["--set"] or args["-s"]:
             values = args["<values>"]
-            if len(values) > self._max_user_entries:
+            if len(values) > max_user_entries:
                 response = (
-                    f"You can only set {self._max_user_entries} {category}!"
+                    f"You can only set {max_user_entries} {category}!"
                     f" Consider deleting or replacing some."
                 )
             else:

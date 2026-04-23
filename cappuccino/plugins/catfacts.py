@@ -29,19 +29,22 @@ class CatFacts(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
         self._cache: list[str] = []
-        self._limit: int = self.config.get("limit", 1000)
-        self._max_length: int = self.config.get("max_length", 200)
-        self._api_url: str = self.config.get("api_url", "https://catfact.ninja/facts")
         self._session: AsyncSession = AsyncSession()
+
+    def after_reload(self):
+        self._cache.clear()
 
     async def _get_cat_fact(self) -> str:
         if not self._cache:
             self.logger.debug("Fetching cat facts.")
-            request_parameters = {"limit": self._limit}
-            if self._max_length > 0:
-                request_parameters.update({"max_length": self._max_length})
+            limit = self.config.get("limit", 1000)
+            max_length = self.config.get("max_length", 200)
+            api_url = self.config.get("api_url", "https://catfact.ninja/facts")
+            request_parameters = {"limit": limit}
+            if max_length > 0:
+                request_parameters.update({"max_length": max_length})
 
-            response = await self._session.get(self._api_url, params=request_parameters)
+            response = await self._session.get(api_url, params=request_parameters)
             response.raise_for_status()
             self._cache = [fact["fact"] for fact in response.json()["data"]]
             random.shuffle(self._cache)

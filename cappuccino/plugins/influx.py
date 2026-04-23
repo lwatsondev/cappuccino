@@ -32,16 +32,27 @@ class Influx(Plugin):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self._url = self.config.get("url")
-        self._org = self.config.get("org")
-        self._bucket = self.config.get("bucket")
-        self._token = self.config.get("token")
+        self._influx_client: InfluxDBClient | None = None
+        self._influx_config_key: tuple | None = None
 
-        if not all((self._url, self._org, self._bucket, self._token)):
+    def after_reload(self):
+        self._influx_client = None
+        self._influx_config_key = None
+
+    @property
+    def _client(self) -> InfluxDBClient | None:
+        url = self.config.get("url")
+        org = self.config.get("org")
+        bucket = self.config.get("bucket")
+        token = self.config.get("token")
+        config_key = (url, org, bucket, token)
+        if not all(config_key):
             self.logger.error("InfluxDB requires *all* config keys to be set.")
-            return
-
-        self._client = InfluxDBClient(url=self._url, token=self._token, org=self._org)
+            return None
+        if config_key != self._influx_config_key:
+            self._influx_client = InfluxDBClient(url=url, token=token, org=org)
+            self._influx_config_key = config_key
+        return self._influx_client
 
     def _record_event(
         self,
@@ -59,7 +70,11 @@ class Influx(Plugin):
 
         data = data.replace("\x00", "") if data else ""
 
-        with self._client.write_api() as write_api:
+        client = self._client
+        if not client:
+            return
+
+        with client.write_api() as write_api:
             point = (
                 Point("channel_activity")
                 .tag("channel", channel)
@@ -69,17 +84,29 @@ class Influx(Plugin):
                 .field("data", data or "")
                 .time(datetime.now(UTC))
             )
-            write_api.write(bucket=self._bucket, org=self._org, record=point)
+            write_api.write(
+                bucket=self.config.get("bucket"),
+                org=self.config.get("org"),
+                record=point,
+            )
 
     def _record_user_count(self, channel):
-        with self._client.write_api() as write_api:
+        client = self._client
+        if not client:
+            return
+
+        with client.write_api() as write_api:
             point = (
                 Point("channel_members")
                 .tag("channel", channel)
                 .field("user_count", len(self.bot.channels.get(channel)))
                 .time(datetime.now(UTC))
             )
-            write_api.write(bucket=self._bucket, org=self._org, record=point)
+            write_api.write(
+                bucket=self.config.get("bucket"),
+                org=self.config.get("org"),
+                record=point,
+            )
 
     @irc3.event(rfc.PRIVMSG)
     @irc3.event(rfc.PRIVMSG, iotype="out")

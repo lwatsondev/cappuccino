@@ -55,9 +55,6 @@ class Ai(Plugin):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self._ignore_nicks: list[str] = self.config.get("ignore_nicks", [])
-        self._max_loaded_lines: int = self.config.get("max_loaded_lines", 25000)
-        self._max_reply_length: int = self.config.get("max_reply_length", 100)
         self._text_model = self._create_text_model()
 
     def _create_text_model(self):
@@ -105,7 +102,9 @@ class Ai(Plugin):
             select_stmt = select(AIChannel.lines).where(
                 func.lower(AIChannel.name) == channel.lower()
             )
-        select_stmt = select_stmt.order_by(func.random()).limit(self._max_loaded_lines)
+        select_stmt = select_stmt.order_by(func.random()).limit(
+            self.config.get("max_loaded_lines", 25000)
+        )
 
         with self.db_session() as session:
             lines = session.scalars(select_stmt).all()
@@ -203,7 +202,10 @@ class Ai(Plugin):
         if not target.is_channel or not mask.is_user:
             return
 
-        if mask.nick in self._ignore_nicks or mask.nick == self.bot.nick:
+        if (
+            mask.nick in self.config.get("ignore_nicks", [])
+            or mask.nick == self.bot.nick
+        ):
             return
 
         data = data.strip()
@@ -220,7 +222,9 @@ class Ai(Plugin):
             return
 
         start = timer()
-        generated_reply = self._text_model.make_short_sentence(self._max_reply_length)
+        generated_reply = self._text_model.make_short_sentence(
+            self.config.get("max_reply_length", 100)
+        )
         end = timer()
         self.logger.debug(
             f"Generating sentence took {(end - start) * 1000} milliseconds."

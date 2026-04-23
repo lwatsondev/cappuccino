@@ -27,23 +27,39 @@ from cappuccino.plugins import Plugin
 class UptimeKuma(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
-        self._webhook: str | None = self.config.get("webhook", None)
-        self._interval: int = self.config.get("interval", 30)
         self._session: AsyncSession = AsyncSession()
+        self._ping_task: asyncio.Task | None = None
 
     @irc3.event(rfc.CONNECTED)
     def _on_connect(
         self, srv: str | None = None, me: str | None = None, data: str | None = None
     ):
-        if self._webhook:
-            self.bot.create_task(self._ping_loop())
+        self._start_ping_loop()
+
+    def _start_ping_loop(self):
+        if self.config.get("webhook"):
+            self.logger.info("Starting Uptime Kuma ping loop.")
+            self._ping_task = self.bot.create_task(self._ping_loop())
+
+    def _stop_ping_loop(self):
+        if self._ping_task:
+            self.logger.info("Stopping Uptime Kuma ping loop.")
+            self._ping_task.cancel()
+            self._ping_task = None
+
+    def before_reload(self):
+        self._stop_ping_loop()
+
+    def after_reload(self):
+        self._start_ping_loop()
 
     async def ping(self, message: str = "OK", status: str = "up"):
+        webhook = self.config.get("webhook")
         request_params = {"status": status, "msg": message}
-        self.logger.debug(f"Pinging {self._webhook}")
+        self.logger.debug(f"Pinging {webhook}")
         try:
             response = await self._session.get(
-                self._webhook, params=request_params, timeout=5
+                webhook, params=request_params, timeout=5
             )
             response.raise_for_status()
             self.logger.debug("Ping succeeded.")
@@ -51,7 +67,8 @@ class UptimeKuma(Plugin):
             self.logger.exception("Ping failed.")
 
     async def _ping_loop(self):
-        self.logger.info(f"Pinging Uptime Kuma every {self._interval} seconds.")
+        interval = self.config.get("interval", 30)
+        self.logger.info(f"Pinging Uptime Kuma every {interval} seconds.")
         while True:
             await self.ping()
-            await asyncio.sleep(self._interval)
+            await asyncio.sleep(self.config.get("interval", 30))

@@ -91,15 +91,7 @@ class UrlInfo(Plugin):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self._ignore_nicks: list[str] = self.config.get("ignore_nicks", "").split()
-        self._ignore_hostnames: list[str] = self.config.get("ignore_hostnames", [])
         self._real_user_agent: str = f"cappuccino {meta.VERSION} - {meta.SOURCE}"
-        self._fake_user_agent: str = self.config.get(
-            "fake_useragent", "Googlebot/2.1 (+http://www.google.com/bot.html)"
-        )
-        self._fake_useragent_hostnames: list[str] = self.config.get(
-            "fake_useragent_hostnames", []
-        )
         self._cookie_jar = RequestsCookieJar()
         self._cookie_jar.set(
             "CONSENT", f"YES+srp.gws-20210512-0-RC3.en+FX+{1 + randbelow(1000)}"
@@ -112,14 +104,14 @@ class UrlInfo(Plugin):
         rf"(?iu):(?P<mask>\S+!\S+@\S+) PRIVMSG (?P<target>#\S+) :(?P<data>.*{_url_regex.pattern}).*"
     )
     async def on_url(self, mask, target, data):  # noqa: C901
-        if mask.nick in self._ignore_nicks or data.startswith(
+        if mask.nick in self.config.get("ignore_nicks", "").split() or data.startswith(
             (self.bot.config.cmd, f"{self.bot.nick}: ")
         ):
             return
 
         urls = [_clean_url(url) for url in set(self._url_regex.findall(data))] or []
         for url in urls:
-            if urlparse(url).hostname in self._ignore_hostnames:
+            if urlparse(url).hostname in self.config.get("ignore_hostnames", []):
                 urls.remove(url)
 
         if not urls:
@@ -193,10 +185,12 @@ class UrlInfo(Plugin):
         hostname = hostname.removeprefix("www.")
 
         user_agent = (
-            self._fake_user_agent
+            self.config.get(
+                "fake_useragent", "Googlebot/2.1 (+http://www.google.com/bot.html)"
+            )
             if any(
                 f".{hostname}".endswith(f".{host}")
-                for host in self._fake_useragent_hostnames
+                for host in self.config.get("fake_useragent_hostnames", [])
             )
             else self._real_user_agent
         )
