@@ -31,6 +31,33 @@ def test_unknown_user(bot, db_session):
     )
 
 
+def test_notice_not_recorded(bot, db_session):
+    bot.test(":noticeuser!user@host NOTICE #channel :some notice", show=False)
+    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "noticeuser"))
+    assert row is None
+
+
+def test_ctcp_version_not_recorded(bot, db_session):
+    bot.test(
+        ":ctcpuser!user@host PRIVMSG #channel :\x01VERSION\x01",
+        show=False,
+    )
+    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "ctcpuser"))
+    assert row is None
+
+
+def test_private_message_not_recorded(bot, db_session):
+    bot.test(":privuser!user@host PRIVMSG cappuccino :hello", show=False)
+    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "privuser"))
+    assert row is None
+
+
+def test_bot_self_not_recorded(bot, db_session):
+    bot.test(":cappuccino!bot@host PRIVMSG #channel :hello", show=False)
+    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "cappuccino"))
+    assert row is None
+
+
 def test_known_user(bot):
     bot.test(":knownuser!user@host PRIVMSG #channel :hello there", show=False)
     bot.test(
