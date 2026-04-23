@@ -76,10 +76,10 @@ def test_http_server(bot):
         app.router.add_get("/", plugin._json_handler)  # noqa: SLF001
         async with TestClient(TestServer(app)) as client:
             resp = await client.get("/")
-            check.equal(resp.status, HTTPStatus.OK)
-            check.equal(resp.content_type, "application/json")
+            assert resp.status == HTTPStatus.OK
+            assert resp.content_type == "application/json"
             data = await resp.json()
             user = next(u for u in data if u["nick"] == "serveruser")
-            check.equal(user["lastfm"], "scrobbler")
+            assert user["lastfm"] == "scrobbler"
 
     asyncio.run(_run())

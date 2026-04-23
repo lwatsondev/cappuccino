@@ -26,12 +26,9 @@ def test_records_activity(bot, db_session):
 def test_unknown_user(bot, db_session):
     bot.test(":nick!user@host PRIVMSG #channel :!seen unseennick", show=False)
     row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "unseennick"))
-    check.is_none(row)
-    check.is_true(
-        any(
-            "I haven't seen any activity from unseennick yet." in line
-            for line in bot.sent
-        )
+    assert row is None
+    assert any(
+        "I haven't seen any activity from unseennick yet." in line for line in bot.sent
     )
 
 
