@@ -30,6 +30,8 @@ dependencies = [
 dev = [
     "pre-commit>=4.0.0",
     "pre-commit-hooks>=5.0.0",
+    "pytest>=9.0.3",
+    "pytest-postgresql>=8.0.0",
     "ruff>=0.14.0",
     "shellcheck-py>=0.10.0.1",
     "yamllint>=1.37.1",
@@ -112,3 +114,12 @@ ignore = [
 ]
 
 extend-ignore = ["ARG002", "PLR0912", "PLR0915", "PLW2901", "RUF012", "TRY003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:irc3",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+]
