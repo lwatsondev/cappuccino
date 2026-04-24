@@ -22,13 +22,18 @@ First, install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 git clone https://github.com/lwatsondev/cappuccino
 cd cappuccino
 
-uv sync --group dev
-uv run pre-commit install
+make setup
 ```
 
 ## Running in dev mode
 
 ```sh
-cp docker/.env.example docker/.env # Open and set any empty variables
-docker compose -f docker/compose.yaml up --build --pull always
+cp docker/.env.example docker/.env # Open and set any necessary variables.
+make run
+```
+
+## Running tests
+
+```sh
+make test
 ```

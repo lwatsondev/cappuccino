@@ -52,7 +52,7 @@ services:
       POSTGRES_USER: "${POSTGRES_USER:-cappuccino}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-cappuccino}"
     volumes:
-      - "./data/postgresql/18:/var/lib/postgresql/18/docker"
+      - "./data/postgresql:/var/lib/postgresql/18/docker"
     networks:
       - "cappuccino"
     healthcheck:
@@ -69,6 +69,23 @@ services:
         limits:
           cpus: "${POSTGRES_CPU_LIMIT:-${CPU_LIMIT:-0}}"
           memory: "${POSTGRES_MEM_LIMIT:-${MEM_LIMIT:-0}}"
+
+  test:
+    container_name: "cappuccino-test"
+    entrypoint: []
+    command: ["uv", "run", "pytest"]
+    build:
+      context: "../"
+      target: "test"
+    volumes:
+      - "../:/app"
+    environment:
+      TZ: "${TZ:-UTC}"
+      UV_NO_CACHE: "1"
+    tmpfs:
+      - "/tmp"
+    profiles:
+      - "test"
 
 networks:
   cappuccino:

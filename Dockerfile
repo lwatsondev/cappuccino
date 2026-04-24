@@ -65,4 +65,19 @@ RUN --mount=type=cache,target=${UV_CACHE_DIR} \
     uv sync --no-install-project
 
 
+FROM development AS test
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get update && apt-get install --no-install-recommends -y \
+    libpq-dev \
+    postgresql \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd -m -u 1000 testuser
+
+USER testuser
+
+ENTRYPOINT []
+CMD ["uv", "run", "pytest"]
+
+
 FROM app-base AS production
