@@ -1,0 +1,26 @@
+---
+name: "CI"
+
+on: # yamllint disable-line rule:truthy
+  - "push"
+  - "pull_request"
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    uses: "./.github/workflows/lint.yml"
+  test:
+    needs: "lint"
+    uses: "./.github/workflows/test.yml"
+  build:
+    needs: "test"
+    # PRs only: release already builds on push events, so this avoids a double build for PRs.
+    if: "github.event_name == 'pull_request'"
+    uses: "./.github/workflows/build.yml"
+  release:
+    needs: "test"
+    if: "github.event_name != 'pull_request' && !env.ACT"
+    uses: "./.github/workflows/release.yml"
