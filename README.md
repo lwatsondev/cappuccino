@@ -4,7 +4,7 @@
 
 <p align="center">
 <a href="LICENSE"><img src="https://img.shields.io/github/license/lwatsondev/cappuccino?style=flat-square" alt="GitHub"></a>
-<a href="https://github.com/lwatsondev/cappuccino/actions"><img src="https://img.shields.io/github/actions/workflow/status/lwatsondev/cappuccino/build-docker-image.yml?branch=main&style=flat-square" alt="GitHub Workflow Status"></a>
+<a href="https://github.com/lwatsondev/cappuccino/actions"><img src="https://img.shields.io/github/actions/workflow/status/lwatsondev/cappuccino/ci.yml?branch=main&style=flat-square" alt="GitHub Workflow Status"></a>
 <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/badge/code%20style-ruff-000000.svg?style=flat-square" alt="Code style: ruff"></a>
 </p>
 
@@ -30,6 +30,12 @@ make setup
 ```sh
 cp docker/.env.example docker/.env # Open and set any necessary variables.
 make run
+```
+
+## Linting
+
+```sh
+make lint
 ```
 
 ## Running tests
