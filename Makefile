@@ -7,7 +7,7 @@ setup:
 	uv run prek install
 
 lint:
-	uv run prek run --all-files
+	uv run prek run --all-files --skip pytest
 
 run:
 	docker compose -f docker/compose.yaml up --build
