@@ -28,6 +28,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    allow:
+      - dependency-type: "direct"
     groups:
       python-production:
         dependency-type: "production"
