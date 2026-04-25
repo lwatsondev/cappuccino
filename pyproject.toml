@@ -27,8 +27,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.0.0",
-    "pre-commit-hooks>=5.0.0",
+    "prek>=0.3.10",
     "pytest>=9.0.3",
     "pytest-check>=2.8.0",
     "pytest-postgresql>=8.0.0",

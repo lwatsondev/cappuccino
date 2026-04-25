@@ -29,4 +29,6 @@ jobs:
         run: "uv sync --group dev"
 
       - name: "Lint"
-        uses: "pre-commit/action@v3.0.1"
+        uses: "j178/prek-action@v2.0.2"
+        with:
+          extra-args: "--all-files --skip pytest"

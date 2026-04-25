@@ -1,0 +1,59 @@
+# Configuration file for `prek`, a git hook framework written in Rust.
+# See https://prek.j178.dev for more information.
+#:schema https://www.schemastore.org/prek.json
+
+[[repos]]
+repo = "builtin"
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+
+[[repos.hooks]]
+id = "check-toml"
+
+[[repos.hooks]]
+id = "check-shebang-scripts-are-executable"
+
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "yamllint"
+name = "yamllint"
+entry = "uv run yamllint"
+args = ["--strict"]
+language = "system"
+types = ["yaml"]
+
+[[repos.hooks]]
+id = "shellcheck"
+name = "shellcheck"
+entry = "uv run shellcheck"
+language = "system"
+types = ["shell"]
+
+[[repos.hooks]]
+id = "ruff-check"
+name = "ruff-check"
+entry = "uv run ruff check"
+args = ["--fix"]
+language = "system"
+types = ["python"]
+
+[[repos.hooks]]
+id = "ruff-format"
+name = "ruff-format"
+entry = "uv run ruff format"
+language = "system"
+types = ["python"]
+
+[[repos.hooks]]
+id = "pytest"
+name = "pytest"
+entry = "uv run pytest"
+language = "system"
+pass_filenames = false
+always_run = true

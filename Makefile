@@ -4,7 +4,7 @@ TTY_FLAG := $(shell [ -t 0 ] || echo "-T")
 
 setup:
 	uv sync --all-groups
-	uv run pre-commit install
+	uv run prek install
 
 run:
 	docker compose -f docker/compose.yaml up --build
