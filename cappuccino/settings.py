@@ -9,7 +9,7 @@ _config_dir = os.getenv("ROOT_PATH_FOR_DYNACONF", _base_dir / "config")
 settings = Dynaconf(
     envvar_prefix="CAPPUCCINO",
     root_path=_config_dir,
-    settings_files=["*.toml"],
+    settings_files=[str(_base_dir / "config" / "default.toml"), "*.toml"],
     load_dotenv=True,
 )
 

@@ -15,11 +15,7 @@ services:
     environment:
       TZ: "${TZ:-UTC}"
       CAPPUCCINO_NICK: "${CAPPUCCINO_NICK:-cappuccino_dev}"
-      CAPPUCCINO_REALNAME: "${CAPPUCCINO_REALNAME:-cappuccino_dev}"
-      CAPPUCCINO_USERNAME: "${CAPPUCCINO_USERNAME:-cappuccino_dev}"
       CAPPUCCINO_HOST: "${CAPPUCCINO_HOST:?}"
-      CAPPUCCINO_PORT: "${CAPPUCCINO_PORT:-6697}"
-      CAPPUCCINO_SSL: "${CAPPUCCINO_SSL:-true}"
       CAPPUCCINO_DATABASE__URI: "${CAPPUCCINO_DATABASE__URI:-postgresql+psycopg://${POSTGRES_USER:-cappuccino}:${POSTGRES_PASSWORD:-cappuccino}@${POSTGRES_HOST:-db}/${POSTGRES_DB:-cappuccino}}"
     volumes:
       - "./config/app:/config"

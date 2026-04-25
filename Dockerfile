@@ -41,8 +41,7 @@ ARG META_SOURCE
 ENV META_VERSION="${META_VERSION}" \
     META_COMMIT="${META_COMMIT}" \
     META_SOURCE="${META_SOURCE}" \
-    ROOT_PATH_FOR_DYNACONF="/config" \
-    SETTINGS_FILES_FOR_DYNACONF='["/app/cappuccino/config/default.toml", "*.toml"]'
+    ROOT_PATH_FOR_DYNACONF="/config"
 
 ADD . .
 RUN ln -s /app/docker/rootfs/* /

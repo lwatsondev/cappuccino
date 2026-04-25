@@ -5,9 +5,9 @@
 ## Examples: CAPPUCCINO_HOST, CAPPUCCINO_DATABASE__URI, CAPPUCCINO_PLUGINS__NICKSERV__PASSWORD
 ##
 
-nick = "cappuccino_test"
-username = "cappuccino_test"
-realname = "cappuccino_test"
+nick = ""
+username = "cappuccino"
+realname = "cappuccino"
 password = ""
 
 host = ""
