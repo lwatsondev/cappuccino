@@ -28,6 +28,7 @@ services:
       - "1337:1337"
     build:
       context: "../"
+      dockerfile: "docker/Dockerfile"
       target: "development"
     deploy:
       resources:
@@ -72,6 +73,7 @@ services:
     command: ["uv", "run", "pytest"]
     build:
       context: "../"
+      dockerfile: "docker/Dockerfile"
       target: "test"
     volumes:
       - "../:/app"
