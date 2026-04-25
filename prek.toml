@@ -32,7 +32,6 @@ types = ["yaml"]
 id = "hadolint"
 name = "hadolint"
 entry = "uv run hadolint"
-args = ["--ignore", "DL3008"]
 language = "system"
 types = ["dockerfile"]
 
