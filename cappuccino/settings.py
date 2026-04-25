@@ -28,24 +28,12 @@ def _flatten_section(cfg: dict, section: dict, prefix: str) -> None:
         cfg[prefix] = leaf
 
 
-def _add_plugins(cfg: dict, plugins: dict) -> None:
-    # [plugins.X] in TOML > cappuccino.plugins.X in irc3 config,
-    # matching the module path used by Plugin.__init__ for config lookup.
-    for plugin_name, plugin_cfg in plugins.items():
-        if isinstance(plugin_cfg, dict):
-            _flatten_section(
-                cfg, plugin_cfg, f"cappuccino.plugins.{plugin_name.lower()}"
-            )
-
-
 def _build_irc3_config() -> dict:
     cfg: dict = {}
     for key, value in settings.as_dict().items():
         if key.endswith("_FOR_DYNACONF") or key in _DYNACONF_INTERNAL:
             continue
-        if key == "PLUGINS" and isinstance(value, dict):
-            _add_plugins(cfg, value)
-        elif isinstance(value, dict):
+        if isinstance(value, dict):
             _flatten_section(cfg, value, key.lower())
         else:
             cfg[key.lower()] = value
