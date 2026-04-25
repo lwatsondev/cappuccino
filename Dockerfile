@@ -43,7 +43,7 @@ ENV META_VERSION="${META_VERSION}" \
     META_SOURCE="${META_SOURCE}" \
     ROOT_PATH_FOR_DYNACONF="/config"
 
-ADD . .
+COPY . .
 RUN ln -s /app/docker/rootfs/* /
 
 RUN --mount=type=cache,target=${UV_CACHE_DIR} \

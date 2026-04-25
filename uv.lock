@@ -186,6 +186,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "hadolint-py" },
     { name = "prek" },
     { name = "pytest" },
     { name = "pytest-check" },
@@ -217,6 +218,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "hadolint-py", specifier = ">=2.14.0.1" },
     { name = "prek", specifier = ">=0.3.10" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-check", specifier = ">=2.8.0" },
@@ -404,6 +406,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/01/ee/02a2c011bdab74c6fb3c75474d40b3052059d95df7e73351460c8588d963/h11-0.16.0.tar.gz", hash = "sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1", size = 101250, upload-time = "2025-04-24T03:35:25.427Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl", hash = "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86", size = 37515, upload-time = "2025-04-24T03:35:24.344Z" },
+]
+
+[[package]]
+name = "hadolint-py"
+version = "2.14.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8a/3f/13a80a4b3d9f602e7deda10e943d198caa2752f59773de59afbd2e7b9b11/hadolint_py-2.14.0.1.tar.gz", hash = "sha256:a7a949dcfd1cda1e6ec6bf62c0f66f61519ed5f74da015d9592e62a1a76cfb91", size = 5676, upload-time = "2026-03-20T00:17:08.085Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/da/c9/168c934801c159d61ca0deccb2e24a53f9c389a06446b70149a8f55f69da/hadolint_py-2.14.0.1-py3-none-macosx_10_15_universal2.whl", hash = "sha256:4beaa65cc53bf27fd5faf55267c4a644786184a36efdb7bfbc912af7807dd186", size = 20992560, upload-time = "2026-03-20T00:16:58.965Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/b9/ea2d8bfda6d5f96dad91b640fccf18048b06e11599a5d7405fb853fe9d01/hadolint_py-2.14.0.1-py3-none-manylinux_2_17_aarch64.whl", hash = "sha256:5e8253b12b45280a90d2e0cb476c59bbc5db9eb293201f713d087ce1a4beff34", size = 12843440, upload-time = "2026-03-20T00:17:01.216Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/ec/c3ae74bd2f3d06a91fda0a907df269a2c7edbab78c62342378b09fece381/hadolint_py-2.14.0.1-py3-none-manylinux_2_17_x86_64.whl", hash = "sha256:1f1dedb223c41f55b09bfcd5e2738175458dc0e1c119b3a48c52c3fcbced3bf1", size = 11942472, upload-time = "2026-03-20T00:17:03.547Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/dd/98f578a78c3f8fd541c167ed7c33547c67883b3213dcf32584a5b7cea1d2/hadolint_py-2.14.0.1-py3-none-win_amd64.whl", hash = "sha256:825e19deed50d2e42f50efb7e0d6c411b609e58e682afd1a8e6b2daeca109697", size = 15370525, upload-time = "2026-03-20T00:17:05.693Z" },
 ]
 
 [[package]]
