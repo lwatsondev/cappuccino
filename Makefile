@@ -1,10 +1,13 @@
-.PHONY: setup run test clean
+.PHONY: setup lint run test clean
 
 TTY_FLAG := $(shell [ -t 0 ] || echo "-T")
 
 setup:
 	uv sync --all-groups
 	uv run prek install
+
+lint:
+	uv run prek run --all-files
 
 run:
 	docker compose -f docker/compose.yaml up --build
