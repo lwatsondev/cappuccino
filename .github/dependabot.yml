@@ -28,6 +28,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    versioning-strategy: "lockfile-only"
     allow:
       - dependency-type: "direct"
     groups:
