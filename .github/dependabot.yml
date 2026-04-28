@@ -9,7 +9,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/docker"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     groups:
       docker:
         patterns:
@@ -18,7 +18,7 @@ updates:
   - package-ecosystem: "docker-compose"
     directory: "/docker"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     groups:
       docker-compose:
         patterns:
@@ -27,7 +27,7 @@ updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     allow:
       - dependency-type: "direct"
     groups:
@@ -39,7 +39,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     groups:
       gh-actions:
         patterns:
