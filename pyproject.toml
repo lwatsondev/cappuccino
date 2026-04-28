@@ -28,7 +28,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "hadolint-py>=2.14.0.1",
-    "prek>=0.3.10",
+    "prek>=0.3.11",
     "pytest>=9.0.3",
     "pytest-check>=2.8.0",
     "pytest-postgresql>=8.0.0",
