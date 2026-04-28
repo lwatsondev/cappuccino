@@ -68,5 +68,8 @@ class UptimeKuma(Plugin):
         interval = self.config.get("interval", 30)
         self.logger.info(f"Pinging Uptime Kuma every {interval} seconds.")
         while True:
-            await self.ping()
-            await asyncio.sleep(self.config.get("interval", 30))
+            try:
+                await self.ping()
+            except Exception:
+                self.logger.exception("Unhandled exception in ping loop.")
+            await asyncio.sleep(interval)
