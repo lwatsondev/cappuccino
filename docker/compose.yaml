@@ -55,8 +55,7 @@ services:
     healthcheck:
       test:
         - "CMD-SHELL"
-        - "pg_isready -q --dbname=$$POSTGRES_DB --username=$$POSTGRES_USER
-          --host=$$POSTGRES_HOST"
+        - "pg_isready -q --dbname=$$POSTGRES_DB --username=$$POSTGRES_USER --host=$$POSTGRES_HOST"
       start_period: "5s"
       start_interval: "1s"
       interval: "10s"
