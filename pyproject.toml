@@ -119,6 +119,7 @@ extend-ignore = ["ARG002", "PLR0912", "PLR0915", "PLW2901", "RUF012", "TRY003"]
 "tests/**/*.py" = ["S101"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:irc3",
     "ignore::pytest.PytestUnraisableExceptionWarning",
