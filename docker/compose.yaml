@@ -49,7 +49,7 @@ services:
       POSTGRES_USER: "${POSTGRES_USER:-cappuccino}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-cappuccino}"
     volumes:
-      - "./data/postgresql:/var/lib/postgresql/18/docker"
+      - "./data/postgresql:/var/lib/postgresql"
     networks:
       - "cappuccino"
     healthcheck:
