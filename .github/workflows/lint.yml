@@ -25,6 +25,6 @@ jobs:
         run: "uv sync --group dev"
 
       - name: "Lint"
-        uses: "j178/prek-action@v2.0.2"
+        uses: "j178/prek-action@v2.0.3"
         with:
           extra-args: "--all-files"
