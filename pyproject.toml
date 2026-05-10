@@ -12,7 +12,7 @@ dependencies = [
     "beautifulsoup4>=4.13.4",
     "aiohttp>=3.11.0",
     "html5lib>=1.1",
-    "niquests[speedups]>=3.18.7",
+    "niquests[speedups]>=3.18.8",
     "humanize>=4.12.3",
     "influxdb-client>=1.48.0",
     "irc3>=1.1.0",
@@ -20,9 +20,9 @@ dependencies = [
     "markovify>=0.9.4",
     "psycopg[binary,pool]>=3.3.4",
     "pylast>=5.5.0",
-    "sentry-sdk>=2.27.0",
+    "sentry-sdk>=2.59.0",
     "sqlalchemy>=2.0.0",
-    "urllib3>=2.4.0",
+    "urllib3>=2.7.0",
 ]
 
 [dependency-groups]
