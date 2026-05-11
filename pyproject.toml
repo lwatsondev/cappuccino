@@ -22,7 +22,7 @@ dependencies = [
     "pylast>=5.5.0",
     "sentry-sdk>=2.27.0",
     "sqlalchemy>=2.0.0",
-    "urllib3>=2.4.0",
+    "urllib3>=2.7.0",
 ]
 
 [dependency-groups]
