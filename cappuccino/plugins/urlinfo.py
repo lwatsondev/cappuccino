@@ -94,8 +94,8 @@ class UrlInfo(Plugin):
         self._cookie_jar.set(
             "CONSENT", f"YES+srp.gws-20210512-0-RC3.en+FX+{1 + randbelow(1000)}"
         )
-        self._requests.cookies.update(self._cookie_jar)
-        self._requests.headers.update(
+        self._http.cookies.update(self._cookie_jar)
+        self._http.headers.update(
             {
                 "Accept-Language": "en-GB,en-US,en;q=0.5",
                 "User-Agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
@@ -186,7 +186,7 @@ class UrlInfo(Plugin):
         await self._validate_ip_address(hostname)
         hostname = hostname.removeprefix("www.")
 
-        response = await self._requests.get(url, stream=True)
+        response = await self._http.get(url, stream=True)
         response.raise_for_status()
 
         content_type = response.headers.get("Content-Type")

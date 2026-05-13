@@ -43,7 +43,7 @@ class CatFacts(Plugin):
             if max_length > 0:
                 request_parameters.update({"max_length": max_length})
 
-            response = await self._requests.get(api_url, params=request_parameters)
+            response = await self._http.get(api_url, params=request_parameters)
             response.raise_for_status()
             self._cache = [fact["fact"] for fact in response.json()["data"]]
             random.shuffle(self._cache)

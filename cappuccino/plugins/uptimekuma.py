@@ -56,9 +56,7 @@ class UptimeKuma(Plugin):
         request_params = {"status": status, "msg": message}
         self.logger.debug(f"Pinging {webhook}")
         try:
-            response = await self._requests.get(
-                webhook, params=request_params, timeout=5
-            )
+            response = await self._http.get(webhook, params=request_params, timeout=5)
             response.raise_for_status()
             self.logger.debug("Ping succeeded.")
         except HTTPError:

@@ -33,7 +33,7 @@ class Plugin:
         self.bot = bot
         self._plugin_name = plugin_module.split(".")[-1]
         self.logger = logging.getLogger(f"irc3.{plugin_module}")
-        self._requests: AsyncSession = AsyncSession(
+        self._http: AsyncSession = AsyncSession(
             timeout=5,
             headers={"User-Agent": f"cappuccino/{meta.VERSION} (+{meta.SOURCE})"},
         )

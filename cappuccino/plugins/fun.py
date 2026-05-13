@@ -194,7 +194,7 @@ class Fun(Plugin):
         """
 
         try:
-            response = await self._requests.get("https://whatthecommit.com/index.txt")
+            response = await self._http.get("https://whatthecommit.com/index.txt")
             response.raise_for_status()
             return f'git commit -m "{response.text.strip()}"'
         except RequestException:
