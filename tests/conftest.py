@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from cappuccino.db.models import BaseModel
 from cappuccino.db.models.ai import AIChannel, CorpusLine  # noqa: F401
 from cappuccino.db.models.triggers import Trigger  # noqa: F401
-from cappuccino.db.models.userdb import RiceDB  # noqa: F401
+from cappuccino.db.models.userdb import User  # noqa: F401
 
 postgresql_proc = postgresql_proc_factory()
 

@@ -21,8 +21,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from cappuccino.db.models import BaseModel
 
 
-class RiceDB(BaseModel):
-    __tablename__ = "ricedb"
+class User(BaseModel):
+    __tablename__ = "users"
 
     nick: Mapped[str] = mapped_column(Text, nullable=False, primary_key=True)
     dtops: Mapped[JSON | None] = mapped_column(

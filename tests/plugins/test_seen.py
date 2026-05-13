@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 import pytest
 from sqlalchemy import select
 
-from cappuccino.db.models.userdb import RiceDB
+from cappuccino.db.models.userdb import User
 
 PLUGINS = ["cappuccino.plugins.userdb", "cappuccino.plugins.seen"]
 
@@ -15,7 +15,7 @@ def bot(make_bot):
 
 def test_records_activity(bot, db_session):
     bot.test(":seenuser!user@host PRIVMSG #channel :hello there", show=False)
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "seenuser"))
+    row = db_session.scalar(select(User).where(User.nick == "seenuser"))
     assert row is not None
     assert isinstance(row.last_seen, datetime)
     assert row.last_seen.tzinfo is not None
@@ -24,7 +24,7 @@ def test_records_activity(bot, db_session):
 
 def test_unknown_user(bot, db_session):
     bot.test(":nick!user@host PRIVMSG #channel :!seen unseennick", show=False)
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "unseennick"))
+    row = db_session.scalar(select(User).where(User.nick == "unseennick"))
     assert row is None
     assert any(
         "I haven't seen any activity from unseennick yet." in line for line in bot.sent
@@ -42,7 +42,7 @@ def test_unknown_user(bot, db_session):
 )
 def test_activity_not_recorded(bot, db_session, line, nick):
     bot.test(line, show=False)
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == nick))
+    row = db_session.scalar(select(User).where(User.nick == nick))
     assert row is None
 
 

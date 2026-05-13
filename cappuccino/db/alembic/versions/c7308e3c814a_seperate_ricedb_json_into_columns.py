@@ -12,7 +12,6 @@ import sqlalchemy as sa
 from sqlalchemy import select, update
 
 from alembic import op
-from cappuccino.db.models.userdb import RiceDB
 
 # revision identifiers, used by Alembic.
 revision = "c7308e3c814a"
@@ -40,7 +39,7 @@ def upgrade():
 
 
 def copy_json_to_columns():
-    ricedb_table = RiceDB.__table__
+    ricedb_table = sa.table("ricedb", sa.column("nick"), sa.column("data"))
     conn = op.get_bind()
     for result in conn.execute(select(ricedb_table)):
         user = result[0]

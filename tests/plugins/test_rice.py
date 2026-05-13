@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import select
 
-from cappuccino.db.models.userdb import RiceDB
+from cappuccino.db.models.userdb import User
 
 PLUGINS = ["cappuccino.plugins.userdb", "cappuccino.plugins.rice"]
 
@@ -16,7 +16,7 @@ def test_add(bot, db_session):
         ":nick!user@host PRIVMSG #channel :!dtop --add https://test.local",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "nick"))
+    row = db_session.scalar(select(User).where(User.nick == "nick"))
     assert row.dtops == ["https://test.local"]
 
 
@@ -25,7 +25,7 @@ def test_set(bot, db_session):
         ":setuser!user@host PRIVMSG #channel :!dtop --set https://test.local",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "setuser"))
+    row = db_session.scalar(select(User).where(User.nick == "setuser"))
     assert row.dtops == ["https://test.local"]
 
 
@@ -38,7 +38,7 @@ def test_delete(bot, db_session):
         ":deleteuser!user@host PRIVMSG #channel :!dtop --delete 1",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "deleteuser"))
+    row = db_session.scalar(select(User).where(User.nick == "deleteuser"))
     assert row.dtops == []
 
 
@@ -47,7 +47,7 @@ def test_show(bot, db_session):
         ":targetuser!user@host PRIVMSG #channel :!dtop --set https://target.local",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "targetuser"))
+    row = db_session.scalar(select(User).where(User.nick == "targetuser"))
     assert row.dtops == ["https://target.local"]
 
     bot.test(
@@ -67,7 +67,7 @@ def test_delete_by_index_multiple(bot, db_session):
         ":multiuser!user@host PRIVMSG #channel :!dtop --delete 2",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "multiuser"))
+    row = db_session.scalar(select(User).where(User.nick == "multiuser"))
     assert row.dtops == ["https://a.local", "https://c.local"]
 
 
@@ -81,7 +81,7 @@ def test_delete_wildcard(bot, db_session):
         ":wildcarduser!user@host PRIVMSG #channel :!dtop --delete *",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "wildcarduser"))
+    row = db_session.scalar(select(User).where(User.nick == "wildcarduser"))
     assert row.dtops is None
 
 
@@ -94,5 +94,5 @@ def test_replace(bot, db_session):
         ":replaceuser!user@host PRIVMSG #channel :!dtop --replace 1 https://replaced.local",
         show=False,
     )
-    row = db_session.scalar(select(RiceDB).where(RiceDB.nick == "replaceuser"))
+    row = db_session.scalar(select(User).where(User.nick == "replaceuser"))
     assert row.dtops == ["https://replaced.local"]

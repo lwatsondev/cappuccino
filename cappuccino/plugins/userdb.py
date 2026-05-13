@@ -28,12 +28,12 @@ from sqlalchemy import (
     update,
 )
 
-from cappuccino.db.models.userdb import RiceDB
+from cappuccino.db.models.userdb import User
 from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import unstyle
 
 
-def _serialize_user(user: RiceDB) -> dict:
+def _serialize_user(user: User) -> dict:
     def _coerce(column: str, value):
         if isinstance(value, list):
             return [unstyle(v) for v in value]
@@ -101,7 +101,7 @@ class UserDB(Plugin):
     def _build_json(self) -> bytes:
         with self.db_session() as session:
             users = session.scalars(
-                select(RiceDB).order_by(nullslast(desc(RiceDB.last_seen)))
+                select(User).order_by(nullslast(desc(User.last_seen)))
             ).all()
         return orjson.dumps([_serialize_user(u) for u in users])
 
@@ -109,8 +109,8 @@ class UserDB(Plugin):
     def get_user_value(self, username: str, key: str):
         with self.db_session() as session:
             return session.scalar(
-                select(RiceDB.__table__.columns[key]).where(
-                    func.lower(RiceDB.nick) == username.lower()
+                select(User.__table__.columns[key]).where(
+                    func.lower(User.nick) == username.lower()
                 )
             )
 
@@ -122,12 +122,12 @@ class UserDB(Plugin):
     def set_user_value(self, username: str, key: str, value=None):
         with self.db_session.begin() as session:
             user = session.scalar(
-                update(RiceDB)
-                .returning(RiceDB)
-                .where(func.lower(RiceDB.nick) == username.lower())
+                update(User)
+                .returning(User)
+                .where(func.lower(User.nick) == username.lower())
                 .values({key: value})
             )
 
             if user is None:
-                user = RiceDB(nick=username, **{key: value})
+                user = User(nick=username, **{key: value})
                 session.add(user)
