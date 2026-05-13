@@ -38,7 +38,7 @@ def _add_lastfm_suffix(irc_username: str, lastfm_username: str) -> str:
 
 @irc3.plugin
 class LastFM(Plugin):
-    requires = ["irc3.plugins.command", "cappuccino.plugins.userdb"]
+    requires = ["irc3.plugins.command", "cappuccino.plugins.ircdb"]
 
     def __init__(self, bot):
         super().__init__(bot)

@@ -28,7 +28,7 @@ from sqlalchemy import (
     update,
 )
 
-from cappuccino.db.models.userdb import User
+from cappuccino.db.models.ircdb import Channel, User
 from cappuccino.plugins import Plugin
 from cappuccino.util.formatting import unstyle
 
@@ -51,7 +51,7 @@ def _serialize_user(user: User) -> dict:
 
 
 @irc3.plugin
-class UserDB(Plugin):
+class IrcDB(Plugin):
     def __init__(self, bot):
         super().__init__(bot)
         self._server_task: asyncio.Task | None = None
@@ -103,7 +103,7 @@ class UserDB(Plugin):
             users = session.scalars(
                 select(User).order_by(nullslast(desc(User.last_seen)))
             ).all()
-        return orjson.dumps([_serialize_user(u) for u in users])
+        return orjson.dumps([_serialize_user(user) for user in users])
 
     @irc3.extend
     def get_user_value(self, username: str, key: str):
@@ -131,3 +131,30 @@ class UserDB(Plugin):
             if user is None:
                 user = User(nick=username, **{key: value})
                 session.add(user)
+
+    @irc3.extend
+    def get_channel_value(self, channel: str, key: str):
+        with self.db_session() as session:
+            return session.scalar(
+                select(Channel.__table__.columns[key]).where(
+                    func.lower(Channel.name) == channel.lower()
+                )
+            )
+
+    @irc3.extend
+    def del_channel_value(self, channel: str, key: str):
+        self.set_channel_value(channel, key, None)
+
+    @irc3.extend
+    def set_channel_value(self, channel: str, key: str, value=None):
+        with self.db_session.begin() as session:
+            row = session.scalar(
+                update(Channel)
+                .returning(Channel)
+                .where(func.lower(Channel.name) == channel.lower())
+                .values({key: value})
+            )
+
+            if row is None:
+                row = Channel(name=channel, **{key: value})
+                session.add(row)

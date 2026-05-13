@@ -5,8 +5,8 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 from cappuccino.db.models import BaseModel
 from cappuccino.db.models.ai import AIChannel, CorpusLine  # noqa: F401
+from cappuccino.db.models.ircdb import Channel, User  # noqa: F401
 from cappuccino.db.models.triggers import Trigger  # noqa: F401
-from cappuccino.db.models.userdb import User  # noqa: F401
 from cappuccino.settings import settings
 
 # this is the Alembic Config object, which provides

@@ -15,10 +15,17 @@
 
 from datetime import datetime  # noqa: TC003
 
-from sqlalchemy import JSON, DateTime, Text, func
+from sqlalchemy import JSON, Boolean, DateTime, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from cappuccino.db.models import BaseModel
+
+
+class Channel(BaseModel):
+    __tablename__ = "channels"
+
+    name: Mapped[str] = mapped_column(Text, nullable=False, primary_key=True)
+    ai_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
 class User(BaseModel):

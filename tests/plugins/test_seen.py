@@ -3,9 +3,9 @@ from datetime import UTC, datetime
 import pytest
 from sqlalchemy import select
 
-from cappuccino.db.models.userdb import User
+from cappuccino.db.models.ircdb import User
 
-PLUGINS = ["cappuccino.plugins.userdb", "cappuccino.plugins.seen"]
+PLUGINS = ["cappuccino.plugins.ircdb", "cappuccino.plugins.seen"]
 
 
 @pytest.fixture

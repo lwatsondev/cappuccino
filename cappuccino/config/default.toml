@@ -50,7 +50,7 @@ ignore_hostnames = []
 [plugins.sentry]
 dsn = ""
 
-[plugins.userdb]
+[plugins.ircdb]
 enable_http_server = false
 http_host = "127.0.0.1"
 http_port = 8080

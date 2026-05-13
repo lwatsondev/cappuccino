@@ -15,3 +15,4 @@ def test_migrations(alembic_cfg, migration_db_url):
     assert "ai_corpus" in tables
     assert "triggers" in tables
     assert "users" in tables
+    assert "channels" in tables

@@ -36,7 +36,7 @@ def _from_user_index(index: int):
 
 @irc3.plugin
 class Rice(Plugin):
-    requires = ["irc3.plugins.command", "cappuccino.plugins.userdb"]
+    requires = ["irc3.plugins.command", "cappuccino.plugins.ircdb"]
 
     def __init__(self, bot):
         super().__init__(bot)

@@ -26,7 +26,7 @@ _DB_KEY = "last_seen"
 
 @irc3.plugin
 class Seen(Plugin):
-    requires = ["irc3.plugins.command", "cappuccino.plugins.userdb"]
+    requires = ["irc3.plugins.command", "cappuccino.plugins.ircdb"]
 
     def _get_last_seen(self, nick: str) -> datetime:
         return self.bot.get_user_value(nick, _DB_KEY)
