@@ -11,7 +11,6 @@ def test_migrations(alembic_cfg, migration_db_url):
     tables = inspect(engine).get_table_names()
     engine.dispose()
 
-    assert "ai_channels" in tables
     assert "ai_corpus" in tables
     assert "triggers" in tables
     assert "users" in tables

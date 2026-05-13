@@ -24,10 +24,11 @@ import markovify
 from humanize import intcomma, precisedelta
 from irc3.plugins.command import command
 from irc3.utils import IrcString
-from sqlalchemy import func, select, update
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
-from cappuccino.db.models.ai import AIChannel, CorpusLine
+from cappuccino.db.models.ai import CorpusLine
+from cappuccino.db.models.ircdb import Channel
 from cappuccino.plugins import Plugin
 from cappuccino.util.channel import is_chanop
 from cappuccino.util.formatting import unstyle
@@ -51,7 +52,11 @@ def _should_ignore_message(line):
 
 @irc3.plugin
 class Ai(Plugin):
-    requires = ["irc3.plugins.command", "irc3.plugins.userlist"]
+    requires = [
+        "irc3.plugins.command",
+        "irc3.plugins.userlist",
+        "cappuccino.plugins.ircdb",
+    ]
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -86,21 +91,22 @@ class Ai(Plugin):
             contextlib.suppress(IntegrityError),
             self.db_session.begin() as session,
         ):
-            ai_channel = session.scalar(
-                select(AIChannel).where(func.lower(AIChannel.name) == channel.lower())
+            irc_channel = session.scalar(
+                select(Channel).where(func.lower(Channel.name) == channel.lower())
             )
-            if not ai_channel:
-                ai_channel = AIChannel(name=channel)
+            if irc_channel is None:
+                irc_channel = Channel(name=channel)
+                session.add(irc_channel)
+                session.flush()
 
-            corpus_line = CorpusLine(line=line)
-            ai_channel.lines.append(corpus_line)
-            session.add_all([ai_channel, corpus_line])
+            corpus_line = CorpusLine(line=line, channel_name=irc_channel.name)
+            session.add(corpus_line)
 
     def _get_lines(self, channel: str | None = None) -> list[str]:
         select_stmt = select(CorpusLine.line)
         if channel:
-            select_stmt = select(AIChannel.lines).where(
-                func.lower(AIChannel.name) == channel.lower()
+            select_stmt = select_stmt.where(
+                func.lower(CorpusLine.channel_name) == channel.lower()
             )
         select_stmt = select_stmt.order_by(func.random()).limit(
             self.config.get("max_loaded_lines", 25000)
@@ -126,27 +132,12 @@ class Ai(Plugin):
         if not IrcString(channel).is_channel:
             return False
 
-        with self.db_session() as session:
-            return session.scalar(
-                select(AIChannel.enabled).where(
-                    func.lower(AIChannel.name) == channel.lower()
-                )
-            )
+        return self.bot.get_channel_value(channel, "ai_enabled")
 
     def _toggle(self, channel: str):
-        new_status = not self._is_enabled_for_channel(channel)
-
-        with self.db_session.begin() as session:
-            ai_channel = session.scalar(
-                update(AIChannel)
-                .returning(AIChannel)
-                .where(func.lower(AIChannel.name) == channel.lower())
-                .values(enabled=new_status)
-            )
-
-            if ai_channel is None:
-                ai_channel = AIChannel(name=channel, enabled=new_status)
-                session.add(ai_channel)
+        self.bot.set_channel_value(
+            channel, "ai_enabled", not self._is_enabled_for_channel(channel)
+        )
 
     @command()
     def ai(self, mask, target, args):

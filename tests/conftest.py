@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from cappuccino.db.models import BaseModel
-from cappuccino.db.models.ai import AIChannel, CorpusLine  # noqa: F401
+from cappuccino.db.models.ai import CorpusLine  # noqa: F401
 from cappuccino.db.models.ircdb import Channel, User  # noqa: F401
 from cappuccino.db.models.triggers import Trigger  # noqa: F401
 
