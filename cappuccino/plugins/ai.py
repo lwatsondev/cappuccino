@@ -13,7 +13,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
-import contextlib
 import random
 import re
 from datetime import UTC, datetime
@@ -25,7 +24,7 @@ from humanize import intcomma, precisedelta
 from irc3.plugins.command import command
 from irc3.utils import IrcString
 from sqlalchemy import func, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.dialects.postgresql import insert
 
 from cappuccino.db.models.ai import CorpusLine
 from cappuccino.plugins import Plugin
@@ -86,11 +85,12 @@ class Ai(Plugin):
 
     def _add_line(self, line: str, channel: str):
         line = unstyle(line)
-        with (
-            contextlib.suppress(IntegrityError),
-            self.bot.ircdb.session.begin() as session,
-        ):
-            session.add(CorpusLine(line=line, channel_name=channel))
+        with self.bot.ircdb.session.begin() as session:
+            session.execute(
+                insert(CorpusLine)
+                .values(line=line, channel_name=channel)
+                .on_conflict_do_nothing()
+            )
 
     def _get_lines(self, channel: str | None = None) -> list[str]:
         select_stmt = select(CorpusLine.line)
