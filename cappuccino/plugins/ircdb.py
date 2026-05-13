@@ -14,6 +14,7 @@
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
+import contextlib
 
 import irc3
 import orjson
@@ -21,11 +22,11 @@ from aiohttp import web
 from irc3 import rfc
 from sqlalchemy import (
     desc,
-    func,
     inspect,
     nullslast,
     select,
 )
+from sqlalchemy.exc import IntegrityError
 
 from cappuccino.db.models.ircdb import Channel, User
 from cappuccino.plugins import Plugin
@@ -62,16 +63,11 @@ class IrcDB(Plugin):
     @irc3.event(irc3.rfc.JOIN)
     def _create_channel_on_join(self, mask, channel, **kwargs):
         if mask.nick == self.bot.nick:
-            with self.bot.db.session.begin() as session:
-                if (
-                    session.scalar(
-                        select(Channel).where(
-                            func.lower(Channel.name) == channel.lower()
-                        )
-                    )
-                    is None
-                ):
-                    session.add(Channel(name=channel))
+            with (
+                contextlib.suppress(IntegrityError),
+                self.bot.db.session.begin() as session,
+            ):
+                session.add(Channel(name=channel))
 
     def _start_server(self):
         if self.config.get("enable_http_server", False):
