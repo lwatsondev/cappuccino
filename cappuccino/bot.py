@@ -19,9 +19,9 @@ from cappuccino.database import IrcDatabase
 
 
 class Bot(IrcBot):
-    db: IrcDatabase
+    ircdb: IrcDatabase
 
     def include(self, *modules, **kwargs):
-        if not hasattr(self, "db"):
-            self.db = IrcDatabase(self.config.get("database", {}))
+        if not hasattr(self, "ircdb"):
+            self.ircdb = IrcDatabase(self.config.get("database", {}))
         super().include(*modules, **kwargs)

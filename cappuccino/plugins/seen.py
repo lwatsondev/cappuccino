@@ -29,10 +29,10 @@ class Seen(Plugin):
     requires = ["irc3.plugins.command", "cappuccino.plugins.ircdb"]
 
     def _get_last_seen(self, nick: str) -> datetime:
-        return self.bot.db.get_user_value(nick, _DB_KEY)
+        return self.bot.ircdb.get_user_value(nick, _DB_KEY)
 
     def _set_last_seen(self, nick: str, timestamp: datetime):
-        self.bot.db.set_user_value(nick, _DB_KEY, timestamp)
+        self.bot.ircdb.set_user_value(nick, _DB_KEY, timestamp)
 
     @command(permission="view", aliases=["died"])
     def seen(self, mask, target, args):
@@ -49,7 +49,7 @@ class Seen(Plugin):
         if nick.lower() == mask.nick.lower():
             return "Are you seriously asking me that?"
 
-        if not self.bot.db.get_user_value(nick, _DB_KEY):
+        if not self.bot.ircdb.get_user_value(nick, _DB_KEY):
             return f"I haven't seen any activity from {nick} yet."
 
         last_seen = self._get_last_seen(nick)

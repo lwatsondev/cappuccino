@@ -65,7 +65,7 @@ class IrcDB(Plugin):
         if mask.nick == self.bot.nick:
             with (
                 contextlib.suppress(IntegrityError),
-                self.bot.db.session.begin() as session,
+                self.bot.ircdb.session.begin() as session,
             ):
                 session.add(Channel(name=channel))
 
@@ -108,7 +108,7 @@ class IrcDB(Plugin):
         return web.Response(body=data, content_type="application/json")
 
     def _build_json(self) -> bytes:
-        with self.bot.db.session() as session:
+        with self.bot.ircdb.session() as session:
             users = session.scalars(
                 select(User).order_by(nullslast(desc(User.last_seen)))
             ).all()
