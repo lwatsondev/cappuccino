@@ -37,7 +37,7 @@ class Triggers(Plugin):
         super().__init__(bot)
 
     def _get_trigger(self, channel: str, name: str):
-        with self.db_session() as session:
+        with self.bot.db.session() as session:
             return session.scalar(
                 select(Trigger.response)
                 .where(func.lower(Trigger.name) == name.lower())
@@ -45,7 +45,7 @@ class Triggers(Plugin):
             )
 
     def _set_trigger(self, channel: str, name: str, response: str):
-        with self.db_session.begin() as session:
+        with self.bot.db.session.begin() as session:
             trigger_model = session.scalar(
                 update(Trigger)
                 .returning(Trigger)
@@ -59,7 +59,7 @@ class Triggers(Plugin):
                 session.add(trigger_model)
 
     def _delete_trigger(self, channel: str, name: str) -> bool:
-        with self.db_session.begin() as session:
+        with self.bot.db.session.begin() as session:
             trigger_object = session.scalar(
                 delete(Trigger)
                 .where(func.lower(Trigger.name) == name.lower())
@@ -69,7 +69,7 @@ class Triggers(Plugin):
             return trigger_object is not None
 
     def _get_triggers_list(self, channel: str) -> list:
-        with self.db_session() as session:
+        with self.bot.db.session() as session:
             return session.scalars(
                 select(Trigger.name).where(
                     func.lower(Trigger.channel) == channel.lower()

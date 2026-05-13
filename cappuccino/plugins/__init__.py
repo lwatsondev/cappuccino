@@ -13,23 +13,22 @@
 #  You should have received a copy of the GNU General Public License
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 import logging
-import os
 from typing import TYPE_CHECKING
 
 from niquests import AsyncSession
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from cappuccino.settings import settings
 from cappuccino.util import meta
 
 if TYPE_CHECKING:
-    from irc3 import IrcBot
+    from cappuccino.bot import Bot
 
 
 class Plugin:
-    def __init__(self, bot: IrcBot):
+    def __init__(self, bot: Bot):
         plugin_module = self.__class__.__module__
         self.bot = bot
         self._plugin_name = plugin_module.split(".")[-1]
@@ -38,14 +37,6 @@ class Plugin:
             timeout=5,
             headers={"User-Agent": f"cappuccino/{meta.VERSION} (+{meta.SOURCE})"},
         )
-
-        db_config = self.bot.config.get("database", {})
-        db = create_engine(
-            db_config.get("uri"),
-            pool_size=db_config.get("pool_size", os.cpu_count()),
-            max_overflow=db_config.get("max_overflow", os.cpu_count()),
-        )
-        self.db_session = sessionmaker(db)
 
         if self.config:
             self.logger.debug(f"Configuration for {plugin_module}: {self.config}")

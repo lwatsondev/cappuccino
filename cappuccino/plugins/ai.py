@@ -88,7 +88,7 @@ class Ai(Plugin):
         line = unstyle(line)
         with (
             contextlib.suppress(IntegrityError),
-            self.db_session.begin() as session,
+            self.bot.db.session.begin() as session,
         ):
             session.add(CorpusLine(line=line, channel_name=channel))
 
@@ -102,7 +102,7 @@ class Ai(Plugin):
             self.config.get("max_loaded_lines", 25000)
         )
 
-        with self.db_session() as session:
+        with self.bot.db.session() as session:
             lines = session.scalars(select_stmt).all()
 
         return lines if len(lines) > 0 else None
@@ -115,17 +115,17 @@ class Ai(Plugin):
             )
             self.logger.debug(select_stmt)
 
-        with self.db_session() as session:
+        with self.bot.db.session() as session:
             return session.scalar(select_stmt)
 
     def _is_enabled_for_channel(self, channel: str) -> bool:
         if not IrcString(channel).is_channel:
             return False
 
-        return self.bot.get_channel_value(channel, "ai_enabled")
+        return self.bot.db.get_channel_value(channel, "ai_enabled")
 
     def _toggle(self, channel: str):
-        self.bot.set_channel_value(
+        self.bot.db.set_channel_value(
             channel, "ai_enabled", not self._is_enabled_for_channel(channel)
         )
 

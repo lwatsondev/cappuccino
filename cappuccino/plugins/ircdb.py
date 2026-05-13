@@ -25,7 +25,6 @@ from sqlalchemy import (
     inspect,
     nullslast,
     select,
-    update,
 )
 
 from cappuccino.db.models.ircdb import Channel, User
@@ -63,7 +62,7 @@ class IrcDB(Plugin):
     @irc3.event(irc3.rfc.JOIN)
     def _create_channel_on_join(self, mask, channel, **kwargs):
         if mask.nick == self.bot.nick:
-            with self.db_session.begin() as session:
+            with self.bot.db.session.begin() as session:
                 if (
                     session.scalar(
                         select(Channel).where(
@@ -113,62 +112,8 @@ class IrcDB(Plugin):
         return web.Response(body=data, content_type="application/json")
 
     def _build_json(self) -> bytes:
-        with self.db_session() as session:
+        with self.bot.db.session() as session:
             users = session.scalars(
                 select(User).order_by(nullslast(desc(User.last_seen)))
             ).all()
         return orjson.dumps([_serialize_user(user) for user in users])
-
-    @irc3.extend
-    def get_user_value(self, username: str, key: str):
-        with self.db_session() as session:
-            return session.scalar(
-                select(User.__table__.columns[key]).where(
-                    func.lower(User.nick) == username.lower()
-                )
-            )
-
-    @irc3.extend
-    def del_user_value(self, username: str, key: str):
-        self.set_user_value(username, key, None)
-
-    @irc3.extend
-    def set_user_value(self, username: str, key: str, value=None):
-        with self.db_session.begin() as session:
-            user = session.scalar(
-                update(User)
-                .returning(User)
-                .where(func.lower(User.nick) == username.lower())
-                .values({key: value})
-            )
-
-            if user is None:
-                user = User(nick=username, **{key: value})
-                session.add(user)
-
-    @irc3.extend
-    def get_channel_value(self, channel: str, key: str):
-        with self.db_session() as session:
-            return session.scalar(
-                select(Channel.__table__.columns[key]).where(
-                    func.lower(Channel.name) == channel.lower()
-                )
-            )
-
-    @irc3.extend
-    def del_channel_value(self, channel: str, key: str):
-        self.set_channel_value(channel, key, None)
-
-    @irc3.extend
-    def set_channel_value(self, channel: str, key: str, value=None):
-        with self.db_session.begin() as session:
-            row = session.scalar(
-                update(Channel)
-                .returning(Channel)
-                .where(func.lower(Channel.name) == channel.lower())
-                .values({key: value})
-            )
-
-            if row is None:
-                row = Channel(name=channel, **{key: value})
-                session.add(row)

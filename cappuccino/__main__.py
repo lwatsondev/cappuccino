@@ -1,11 +1,10 @@
-from irc3 import IrcBot
-
+from cappuccino.bot import Bot
 from cappuccino.settings import _build_irc3_config
 
 
 def main() -> None:
     cfg = _build_irc3_config()
-    bot = IrcBot.from_config(cfg)
+    bot = Bot.from_config(cfg)
     bot.run(forever=True)
 
 

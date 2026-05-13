@@ -1,17 +1,23 @@
 import asyncio
 
+import irc3.testing
 import pytest
 from alembic.config import Config as AlembicConfig
-from irc3.testing import IrcBot
 from pytest_postgresql.factories import postgresql_proc as postgresql_proc_factory
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from cappuccino.bot import Bot
 from cappuccino.db.models import BaseModel
 from cappuccino.db.models.ai import CorpusLine  # noqa: F401
 from cappuccino.db.models.ircdb import Channel, User  # noqa: F401
 from cappuccino.db.models.triggers import Trigger  # noqa: F401
+
+
+class TestBot(Bot, irc3.testing.IrcBot):
+    pass
+
 
 postgresql_proc = postgresql_proc_factory()
 
@@ -82,9 +88,9 @@ def alembic_cfg(migration_db_url):
 def make_bot(db_url):
     """Factory that creates an irc3 test bot wired to the test database."""
 
-    def _make(includes: list[str], **extra_config) -> IrcBot:
+    def _make(includes: list[str], **extra_config) -> TestBot:
         asyncio.set_event_loop(asyncio.new_event_loop())
-        return IrcBot(
+        return TestBot(
             nick="cappuccino",
             includes=includes,
             cmd="!",

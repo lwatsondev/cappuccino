@@ -56,7 +56,7 @@ class Rice(Plugin):
         max_user_entries = self.config.get("max_user_entries", 6)
 
         if args["--add"] or args["-a"]:
-            values = self.bot.get_user_value(mask.nick, category) or []
+            values = self.bot.db.get_user_value(mask.nick, category) or []
             if len(values) + len(args["<values>"]) > max_user_entries:
                 response = (
                     f"You can only set {max_user_entries} {category}!"
@@ -65,7 +65,7 @@ class Rice(Plugin):
             else:
                 for value in args["<values>"]:
                     values.append(value)
-                self.bot.set_user_value(mask.nick, category, values)
+                self.bot.db.set_user_value(mask.nick, category, values)
                 response = f"{category} updated."
 
         elif args["--set"] or args["-s"]:
@@ -76,17 +76,17 @@ class Rice(Plugin):
                     f" Consider deleting or replacing some."
                 )
             else:
-                self.bot.set_user_value(mask.nick, category, values)
+                self.bot.db.set_user_value(mask.nick, category, values)
                 response = f"{category} updated."
 
         elif args["--delete"] or args["-d"]:
-            values = self.bot.get_user_value(mask.nick, category)
+            values = self.bot.db.get_user_value(mask.nick, category)
             if not values:
                 response = f"You do not have any {category} to remove."
             else:
                 indexes = set(args["<ids>"])
                 if "*" in indexes:
-                    self.bot.del_user_value(mask.nick, category)
+                    self.bot.db.del_user_value(mask.nick, category)
                     response = f"Removed all of your {category}."
                 else:
                     deleted_list = []
@@ -104,7 +104,7 @@ class Rice(Plugin):
                         if not deleted_list:
                             response = f"No {category} were removed. Maybe you supplied the wrong IDs?"
                         else:
-                            self.bot.set_user_value(mask.nick, category, values)
+                            self.bot.db.set_user_value(mask.nick, category, values)
                             deleted_list = ", ".join(
                                 [style(deleted, reset=True) for deleted in deleted_list]
                             )
@@ -117,14 +117,14 @@ class Rice(Plugin):
                 response = "Invalid ID"
             else:
                 replacement = args["<value>"].strip()
-                values = self.bot.get_user_value(mask.nick, category)
+                values = self.bot.db.get_user_value(mask.nick, category)
                 if not values:
                     response = f"You do not have any {category} to replace."
                 else:
                     try:
                         old_value = values[index]
                         values[index] = replacement
-                        self.bot.set_user_value(mask.nick, category, values)
+                        self.bot.db.set_user_value(mask.nick, category, values)
                         old_value = style(old_value, reset=True)
                         replacement = style(replacement, reset=True)
                         response = f"Replaced {old_value} with {replacement}"
@@ -156,13 +156,13 @@ class Rice(Plugin):
         if args["<id>"] is not None:
             try:
                 index = _from_user_index(args["<id>"])
-                value = self.bot.get_user_value(user, category)[index]
+                value = self.bot.db.get_user_value(user, category)[index]
             except ValueError, IndexError, TypeError:
                 return "Invalid ID."
             value = style(value, reset=True)
             return f"{user_tag} {value}"
 
-        values = self.bot.get_user_value(user, category)
+        values = self.bot.db.get_user_value(user, category)
         if values:
             indexed_values = []
             for index, item in enumerate(values):

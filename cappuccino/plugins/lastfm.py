@@ -65,7 +65,7 @@ class LastFM(Plugin):
         except pylast.WSError:
             return "That user doesn't appear to exist. Are you trying to trick me? :^)"
         else:
-            self.bot.set_user_value(irc_username, _DB_KEY, lastfm_username)
+            self.bot.db.set_user_value(irc_username, _DB_KEY, lastfm_username)
             return "Last.fm account linked successfully."
 
     @command(name="np", permission="view", aliases=["lastfm"])
@@ -80,7 +80,7 @@ class LastFM(Plugin):
 
         base_command = f"{self.bot.config.cmd}np"
         irc_target_username = args["<username>"] or mask.nick
-        lastfm_username = self.bot.get_user_value(irc_target_username, _DB_KEY)
+        lastfm_username = self.bot.db.get_user_value(irc_target_username, _DB_KEY)
 
         response = ""
         try:

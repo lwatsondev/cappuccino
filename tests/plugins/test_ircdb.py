@@ -18,29 +18,29 @@ def bot(make_bot):
 
 
 def test_set_user_value(bot):
-    bot.set_user_value("dbuser", "lastfm", "testaccount")
-    assert bot.get_user_value("dbuser", "lastfm") == "testaccount"
+    bot.db.set_user_value("dbuser", "lastfm", "testaccount")
+    assert bot.db.get_user_value("dbuser", "lastfm") == "testaccount"
 
 
 def test_set_user_value_upsert(bot):
-    bot.set_user_value("upsertuser", "lastfm", "original")
-    bot.set_user_value("upsertuser", "lastfm", "updated")
-    assert bot.get_user_value("upsertuser", "lastfm") == "updated"
+    bot.db.set_user_value("upsertuser", "lastfm", "original")
+    bot.db.set_user_value("upsertuser", "lastfm", "updated")
+    assert bot.db.get_user_value("upsertuser", "lastfm") == "updated"
 
 
 def test_del_user_value(bot):
-    bot.set_user_value("deluser", "lastfm", "todelete")
-    bot.del_user_value("deluser", "lastfm")
-    assert bot.get_user_value("deluser", "lastfm") is None
+    bot.db.set_user_value("deluser", "lastfm", "todelete")
+    bot.db.del_user_value("deluser", "lastfm")
+    assert bot.db.get_user_value("deluser", "lastfm") is None
 
 
 def test_get_user_value_missing(bot):
-    assert bot.get_user_value("nosuchuser", "lastfm") is None
+    assert bot.db.get_user_value("nosuchuser", "lastfm") is None
 
 
 def test_json_dump_includes_set_values(bot):
-    bot.set_user_value("jsonuser", "lastfm", "scrobbler")
-    bot.set_user_value("jsonuser", "dtops", ["http://dt.local/screenshot"])
+    bot.db.set_user_value("jsonuser", "lastfm", "scrobbler")
+    bot.db.set_user_value("jsonuser", "dtops", ["http://dt.local/screenshot"])
 
     data = orjson.loads(bot.get_plugin(IrcDB)._build_json())  # noqa: SLF001
     user = next(u for u in data if u["nick"] == "jsonuser")
@@ -50,7 +50,7 @@ def test_json_dump_includes_set_values(bot):
 
 
 def test_json_dump_excludes_null_fields(bot):
-    bot.set_user_value("nulluser", "lastfm", "scrobbler")
+    bot.db.set_user_value("nulluser", "lastfm", "scrobbler")
 
     data = orjson.loads(bot.get_plugin(IrcDB)._build_json())  # noqa: SLF001
     user = next(u for u in data if u["nick"] == "nulluser")
@@ -59,7 +59,7 @@ def test_json_dump_excludes_null_fields(bot):
 
 
 def test_json_dump_last_seen_is_timestamp(bot):
-    bot.set_user_value("tsuser", "lastfm", "scrobbler")
+    bot.db.set_user_value("tsuser", "lastfm", "scrobbler")
 
     data = orjson.loads(bot.get_plugin(IrcDB)._build_json())  # noqa: SLF001
     user = next(u for u in data if u["nick"] == "tsuser")
@@ -68,7 +68,7 @@ def test_json_dump_last_seen_is_timestamp(bot):
 
 
 def test_http_server(bot):
-    bot.set_user_value("serveruser", "lastfm", "scrobbler")
+    bot.db.set_user_value("serveruser", "lastfm", "scrobbler")
     plugin = bot.get_plugin(IrcDB)
 
     async def _run():
