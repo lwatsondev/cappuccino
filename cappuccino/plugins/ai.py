@@ -28,7 +28,6 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
 from cappuccino.db.models.ai import CorpusLine
-from cappuccino.db.models.ircdb import Channel
 from cappuccino.plugins import Plugin
 from cappuccino.util.channel import is_chanop
 from cappuccino.util.formatting import unstyle
@@ -91,16 +90,7 @@ class Ai(Plugin):
             contextlib.suppress(IntegrityError),
             self.db_session.begin() as session,
         ):
-            irc_channel = session.scalar(
-                select(Channel).where(func.lower(Channel.name) == channel.lower())
-            )
-            if irc_channel is None:
-                irc_channel = Channel(name=channel)
-                session.add(irc_channel)
-                session.flush()
-
-            corpus_line = CorpusLine(line=line, channel_name=irc_channel.name)
-            session.add(corpus_line)
+            session.add(CorpusLine(line=line, channel_name=channel))
 
     def _get_lines(self, channel: str | None = None) -> list[str]:
         select_stmt = select(CorpusLine.line)

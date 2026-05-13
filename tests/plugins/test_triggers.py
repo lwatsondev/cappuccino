@@ -10,7 +10,9 @@ PLUGINS = ["cappuccino.plugins.triggers"]
 
 @pytest.fixture
 def bot(make_bot):
-    return make_bot(PLUGINS)
+    bot = make_bot(PLUGINS)
+    bot.test(f":{bot.nick}!{bot.nick}@host JOIN :#channel", show=False)
+    return bot
 
 
 def test_set(bot, db_session):

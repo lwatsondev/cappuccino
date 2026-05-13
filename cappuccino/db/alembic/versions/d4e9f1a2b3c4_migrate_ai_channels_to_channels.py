@@ -21,6 +21,8 @@ _ai_channels = sa.table(
     sa.column("enabled", sa.Boolean),
 )
 
+_ai_corpus = sa.table("ai_corpus", sa.column("channel_name", sa.Text))
+
 _channels = sa.table(
     "channels",
     sa.column("name", sa.Text),
@@ -36,6 +38,21 @@ def upgrade():
             sa.insert(_channels),
             [{"name": row.name, "ai_enabled": row.enabled} for row in rows],
         )
+
+    existing_names = {
+        row.name for row in conn.execute(sa.select(_channels.c.name)).all()
+    }
+    corpus_channels = {
+        row.channel_name
+        for row in conn.execute(sa.select(_ai_corpus.c.channel_name)).all()
+    }
+    orphaned = [
+        {"name": channel_name}
+        for channel_name in corpus_channels
+        if channel_name not in existing_names
+    ]
+    if orphaned:
+        conn.execute(sa.insert(_channels), orphaned)
 
     op.drop_constraint("fk_ai_corpus.channel_name", "ai_corpus", type_="foreignkey")
     op.create_foreign_key(

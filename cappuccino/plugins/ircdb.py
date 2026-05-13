@@ -60,6 +60,20 @@ class IrcDB(Plugin):
     def _on_connect(self, **kwargs):
         self._start_server()
 
+    @irc3.event(irc3.rfc.JOIN)
+    def _create_channel_on_join(self, mask, channel, **kwargs):
+        if mask.nick == self.bot.nick:
+            with self.db_session.begin() as session:
+                if (
+                    session.scalar(
+                        select(Channel).where(
+                            func.lower(Channel.name) == channel.lower()
+                        )
+                    )
+                    is None
+                ):
+                    session.add(Channel(name=channel))
+
     def _start_server(self):
         if self.config.get("enable_http_server", False):
             host = self.config.get("http_host", "127.0.0.1")
