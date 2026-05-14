@@ -13,7 +13,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from irc3 import IrcBot
 
 
 class ChannelMode(Enum):
@@ -24,7 +30,19 @@ class ChannelMode(Enum):
     OWNER = "~"
 
 
-def is_chanop(botcontext, channel: str, nick: str) -> bool:
+def is_channel(name: str) -> bool:
+    return name.startswith(("#", "&"))
+
+
+def is_server(name: str) -> bool:
+    return "." in name and "!" not in name
+
+
+def is_user(name: str) -> bool:
+    return "!" in name
+
+
+def is_chanop(bot: IrcBot, channel: str, nick: str) -> bool:
     """Checks whether a user is a chanop (has mode +h or above)."""
     for mode in ChannelMode:
         # Voiced users aren't channel operators.
@@ -32,7 +50,7 @@ def is_chanop(botcontext, channel: str, nick: str) -> bool:
             continue
 
         try:
-            if nick in botcontext.channels[channel].modes[mode.value]:
+            if nick in bot.channels[channel].modes[mode.value]:
                 return True
         except KeyError, AttributeError:
             continue

@@ -14,16 +14,13 @@
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
 
 import irc3
 from influxdb_client import InfluxDBClient, Point
 from irc3 import rfc
 
 from cappuccino.plugins import Plugin
-
-if TYPE_CHECKING:
-    from irc3.utils import IrcString
+from cappuccino.util.irc import is_channel, is_server, is_user
 
 
 @irc3.plugin
@@ -58,15 +55,15 @@ class Influx(Plugin):
         self,
         event: str,
         data: str | None = None,
-        user: IrcString = None,
-        channel: IrcString = None,
+        user: str | None = None,
+        channel: str | None = None,
         target: str | None = None,
     ):
-        if not channel or not channel.is_channel or not user or user.is_server:
+        if not channel or not is_channel(channel) or not user or is_server(user):
             return
 
-        if user.is_user:
-            user = user.nick
+        if is_user(user):
+            user = user.split("!", 1)[0]
 
         data = data.replace("\x00", "") if data else ""
 

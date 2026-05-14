@@ -22,14 +22,13 @@ import irc3
 import markovify
 from humanize import intcomma, precisedelta
 from irc3.plugins.command import command
-from irc3.utils import IrcString
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 
 from cappuccino.db.models.ai import CorpusLine
 from cappuccino.plugins import Plugin
-from cappuccino.util.channel import is_chanop
 from cappuccino.util.formatting import unstyle
+from cappuccino.util.irc import is_channel, is_chanop, is_user
 
 _CMD_PATTERN = re.compile(r"^\s*([.!~`$])+")
 _SED_CHECKER = re.compile(r"^\s*s[/|\\!.,].+")
@@ -119,7 +118,7 @@ class Ai(Plugin):
             return session.scalar(select_stmt)
 
     def _is_enabled_for_channel(self, channel: str) -> bool:
-        if not IrcString(channel).is_channel:
+        if not is_channel(channel):
             return False
 
         return self.bot.ircdb.get_channel_value(channel, "ai_enabled")
@@ -136,7 +135,7 @@ class Ai(Plugin):
         %%ai [--status]
         """
 
-        if not target.is_channel:
+        if not is_channel(target):
             return "This command cannot be used in PM."
 
         if args["--status"]:
@@ -180,7 +179,7 @@ class Ai(Plugin):
 
     @irc3.event(irc3.rfc.PRIVMSG)
     def handle_line(self, target, event, mask, data):
-        if not target.is_channel or not mask.is_user:
+        if not is_channel(target) or not is_user(mask):
             return
 
         if (

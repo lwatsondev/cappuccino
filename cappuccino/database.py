@@ -13,16 +13,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import os
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from sqlalchemy import create_engine, func, select, update
 from sqlalchemy.orm import sessionmaker
-
-if TYPE_CHECKING:
-    from irc3.utils import IrcString
 
 from cappuccino.db.models.ircdb import Channel, User
 
@@ -36,7 +31,7 @@ class IrcDatabase:
         )
         self.session = sessionmaker(engine)
 
-    def get_user_value(self, nick: IrcString, key: str):
+    def get_user_value(self, nick: str, key: str):
         with self.session() as session:
             return session.scalar(
                 select(User.__table__.columns[key]).where(
@@ -44,10 +39,10 @@ class IrcDatabase:
                 )
             )
 
-    def del_user_value(self, nick: IrcString, key: str):
+    def del_user_value(self, nick: str, key: str):
         self.set_user_value(nick, key, None)
 
-    def set_user_value(self, nick: IrcString, key: str, value: Any = None):
+    def set_user_value(self, nick: str, key: str, value: Any = None):
         with self.session.begin() as session:
             user = session.scalar(
                 update(User)
@@ -59,7 +54,7 @@ class IrcDatabase:
                 user = User(nick=nick, **{key: value})
                 session.add(user)
 
-    def get_channel_value(self, channel: IrcString, key: str):
+    def get_channel_value(self, channel: str, key: str):
         with self.session() as session:
             return session.scalar(
                 select(Channel.__table__.columns[key]).where(
@@ -67,10 +62,10 @@ class IrcDatabase:
                 )
             )
 
-    def del_channel_value(self, channel: IrcString, key: str):
+    def del_channel_value(self, channel: str, key: str):
         self.set_channel_value(channel, key, None)
 
-    def set_channel_value(self, channel: IrcString, key: str, value: Any = None):
+    def set_channel_value(self, channel: str, key: str, value: Any = None):
         with self.session.begin() as session:
             row = session.scalar(
                 update(Channel)

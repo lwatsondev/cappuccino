@@ -21,8 +21,8 @@ from sqlalchemy import delete, func, select, update
 
 from cappuccino.db.models.triggers import Trigger
 from cappuccino.plugins import Plugin
-from cappuccino.util.channel import is_chanop
 from cappuccino.util.formatting import Color, style
+from cappuccino.util.irc import is_channel, is_chanop
 
 
 @irc3.plugin
@@ -83,7 +83,7 @@ class Triggers(Plugin):
         %%trigger (set <name> <response>... | del <name> | list)
         """
 
-        if not target.is_channel:
+        if not is_channel(target):
             return "This command can only be used in channels."
 
         if (args["set"] or args["del"]) and not is_chanop(self.bot, target, mask.nick):
