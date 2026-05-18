@@ -2,7 +2,7 @@
 ## Configuration can be done here or via env vars.
 ## Env var usage is documented here: https://www.dynaconf.com/envvars/
 ## Env var prefix is 'CAPPUCCINO_', not 'DYNACONF_'. Use '__' as a separator for nested keys.
-## Examples: CAPPUCCINO_HOST, CAPPUCCINO_DATABASE__URI, CAPPUCCINO_PLUGINS__NICKSERV__PASSWORD
+## Examples: CAPPUCCINO_HOST, CAPPUCCINO_DATABASE__URI, CAPPUCCINO_SENTRY__DSN, CAPPUCCINO_PLUGINS__NICKSERV__PASSWORD
 ##
 
 nick = ""
@@ -31,11 +31,14 @@ includes = [
     "irc3.plugins.ctcp",
 ]
 
-[ctcp]
-version = "cappuccino (https://github.com/lwatsondev/cappuccino)"
-
 [database]
 uri = ""
+
+[sentry]
+dsn = ""
+
+[ctcp]
+version = "cappuccino (https://github.com/lwatsondev/cappuccino)"
 
 [plugins.nickserv]
 password = ""
@@ -46,9 +49,6 @@ api_key = ""
 [plugins.urlinfo]
 ignore_nicks = []
 ignore_hostnames = []
-
-[plugins.sentry]
-dsn = ""
 
 [plugins.ircdb]
 enable_http_server = false

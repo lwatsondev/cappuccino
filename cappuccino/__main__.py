@@ -1,8 +1,10 @@
+from cappuccino import sentry
 from cappuccino.bot import Bot
 from cappuccino.settings import _build_irc3_config
 
 
 def main() -> None:
+    sentry.init()
     cfg = _build_irc3_config()
     bot = Bot.from_config(cfg)
     bot.run(forever=True)
