@@ -19,20 +19,24 @@ _DYNACONF_INTERNAL = frozenset({"LOAD_DOTENV", "RENAMED_VARS"})
 
 def _flatten_section(cfg: dict, section: dict, prefix: str) -> None:
     leaf: dict = {}
+
     for key, value in section.items():
         if isinstance(value, dict):
             _flatten_section(cfg, value, f"{prefix}.{key.lower()}")
         else:
             leaf[key.lower()] = value
+
     if leaf:
         cfg[prefix] = leaf
 
 
 def _build_irc3_config() -> dict:
     cfg: dict = {}
+
     for key, value in settings.as_dict().items():
         if key.endswith("_FOR_DYNACONF") or key in _DYNACONF_INTERNAL:
             continue
+
         if isinstance(value, dict):
             _flatten_section(cfg, value, key.lower())
         else:
@@ -41,4 +45,5 @@ def _build_irc3_config() -> dict:
     # irc3 uses these for configparser-style interpolation. Harmless when set.
     cfg.setdefault("hash", "#")
     cfg.setdefault("#", "#")
+
     return cfg

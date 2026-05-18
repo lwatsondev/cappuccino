@@ -1,5 +1,4 @@
 import pytest
-from sqlalchemy import select
 
 from cappuccino.db.models.ircdb import User
 
@@ -16,7 +15,7 @@ def test_add(bot, db_session):
         ":nick!user@host PRIVMSG #channel :!dtop --add https://test.local",
         show=False,
     )
-    row = db_session.scalar(select(User).where(User.nick == "nick"))
+    row = db_session.get(User, "nick")
     assert row.dtops == ["https://test.local"]
 
 
@@ -25,7 +24,7 @@ def test_set(bot, db_session):
         ":setuser!user@host PRIVMSG #channel :!dtop --set https://test.local",
         show=False,
     )
-    row = db_session.scalar(select(User).where(User.nick == "setuser"))
+    row = db_session.get(User, "setuser")
     assert row.dtops == ["https://test.local"]
 
 
@@ -38,7 +37,7 @@ def test_delete(bot, db_session):
         ":deleteuser!user@host PRIVMSG #channel :!dtop --delete 1",
         show=False,
     )
-    row = db_session.scalar(select(User).where(User.nick == "deleteuser"))
+    row = db_session.get(User, "deleteuser")
     assert row.dtops == []
 
 
@@ -47,7 +46,7 @@ def test_show(bot, db_session):
         ":targetuser!user@host PRIVMSG #channel :!dtop --set https://target.local",
         show=False,
     )
-    row = db_session.scalar(select(User).where(User.nick == "targetuser"))
+    row = db_session.get(User, "targetuser")
     assert row.dtops == ["https://target.local"]
 
     bot.test(
@@ -67,7 +66,7 @@ def test_delete_by_index_multiple(bot, db_session):
         ":multiuser!user@host PRIVMSG #channel :!dtop --delete 2",
         show=False,
     )
-    row = db_session.scalar(select(User).where(User.nick == "multiuser"))
+    row = db_session.get(User, "multiuser")
     assert row.dtops == ["https://a.local", "https://c.local"]
 
 
@@ -81,7 +80,7 @@ def test_delete_wildcard(bot, db_session):
         ":wildcarduser!user@host PRIVMSG #channel :!dtop --delete *",
         show=False,
     )
-    row = db_session.scalar(select(User).where(User.nick == "wildcarduser"))
+    row = db_session.get(User, "wildcarduser")
     assert row.dtops is None
 
 
@@ -94,5 +93,5 @@ def test_replace(bot, db_session):
         ":replaceuser!user@host PRIVMSG #channel :!dtop --replace 1 https://replaced.local",
         show=False,
     )
-    row = db_session.scalar(select(User).where(User.nick == "replaceuser"))
+    row = db_session.get(User, "replaceuser")
     assert row.dtops == ["https://replaced.local"]

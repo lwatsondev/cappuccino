@@ -23,7 +23,6 @@ import markovify
 from humanize import intcomma, precisedelta
 from irc3.plugins.command import command
 from sqlalchemy import func, select
-from sqlalchemy.dialects.postgresql import insert
 
 from cappuccino.db.models.ai import CorpusLine
 from cappuccino.plugins import Plugin
@@ -85,11 +84,8 @@ class Ai(Plugin):
     def _add_line(self, line: str, channel: str):
         line = unstyle(line)
         with self.bot.ircdb.session.begin() as session:
-            session.execute(
-                insert(CorpusLine)
-                .values(line=line, channel_name=channel)
-                .on_conflict_do_nothing()
-            )
+            if not session.get(CorpusLine, line):
+                session.add(CorpusLine(line=line, channel_name=channel))
 
     def _get_lines(self, channel: str | None = None) -> list[str]:
         select_stmt = select(CorpusLine.line)
@@ -97,6 +93,7 @@ class Ai(Plugin):
             select_stmt = select_stmt.where(
                 func.lower(CorpusLine.channel_name) == channel.lower()
             )
+
         select_stmt = select_stmt.order_by(func.random()).limit(
             self.config.get("max_loaded_lines", 25000)
         )
@@ -167,7 +164,6 @@ class Ai(Plugin):
                 if prefix is not self.bot.nickprefix.VOICE
             ]
             op_prefixes = ", ".join(prefixes)
-
             return f"You must be a channel operator ({op_prefixes}) to do that."
 
         self._toggle(target)

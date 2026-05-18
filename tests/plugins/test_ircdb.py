@@ -43,7 +43,7 @@ def test_json_dump_includes_set_values(bot):
     bot.ircdb.set_user_value("jsonuser", "dtops", ["http://dt.local/screenshot"])
 
     data = orjson.loads(bot.get_plugin(IrcDB)._build_json())  # noqa: SLF001
-    user = next(u for u in data if u["nick"] == "jsonuser")
+    user = next(user for user in data if user["nick"] == "jsonuser")
 
     check.equal(user["lastfm"], "scrobbler")
     check.equal(user["dtops"], ["http://dt.local/screenshot"])
@@ -53,7 +53,7 @@ def test_json_dump_excludes_null_fields(bot):
     bot.ircdb.set_user_value("nulluser", "lastfm", "scrobbler")
 
     data = orjson.loads(bot.get_plugin(IrcDB)._build_json())  # noqa: SLF001
-    user = next(u for u in data if u["nick"] == "nulluser")
+    user = next(user for user in data if user["nick"] == "nulluser")
 
     assert "dtops" not in user
 
@@ -62,7 +62,7 @@ def test_json_dump_last_seen_is_timestamp(bot):
     bot.ircdb.set_user_value("tsuser", "lastfm", "scrobbler")
 
     data = orjson.loads(bot.get_plugin(IrcDB)._build_json())  # noqa: SLF001
-    user = next(u for u in data if u["nick"] == "tsuser")
+    user = next(user for user in data if user["nick"] == "tsuser")
 
     assert isinstance(user["last_seen"], float)
 
@@ -79,7 +79,7 @@ def test_http_server(bot):
             assert resp.status == HTTPStatus.OK
             assert resp.content_type == "application/json"
             data = await resp.json()
-            user = next(u for u in data if u["nick"] == "serveruser")
+            user = next(user for user in data if user["nick"] == "serveruser")
             assert user["lastfm"] == "scrobbler"
 
     asyncio.run(_run())

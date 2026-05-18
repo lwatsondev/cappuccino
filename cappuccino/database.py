@@ -50,6 +50,7 @@ class IrcDatabase:
                 .where(func.lower(User.nick) == nick.lower())
                 .values({key: value})
             )
+
             if user is None:
                 user = User(nick=nick, **{key: value})
                 session.add(user)
@@ -73,6 +74,7 @@ class IrcDatabase:
                 .where(func.lower(Channel.name) == channel.lower())
                 .values({key: value})
             )
+
             if row is None:
                 row = Channel(name=channel, **{key: value})
                 session.add(row)

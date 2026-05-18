@@ -24,4 +24,5 @@ class Bot(IrcBot):
     def include(self, *modules, **kwargs):
         if not hasattr(self, "ircdb"):
             self.ircdb = IrcDatabase(self.config.get("database", {}))
+
         super().include(*modules, **kwargs)

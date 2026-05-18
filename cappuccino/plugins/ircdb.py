@@ -19,13 +19,7 @@ import irc3
 import orjson
 from aiohttp import web
 from irc3 import rfc
-from sqlalchemy import (
-    desc,
-    inspect,
-    nullslast,
-    select,
-)
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import desc, inspect, nullslast, select
 
 from cappuccino.db.models.ircdb import Channel, User
 from cappuccino.plugins import Plugin
@@ -35,11 +29,14 @@ from cappuccino.util.formatting import unstyle
 def _serialize_user(user: User) -> dict:
     def _coerce(column: str, value):
         if isinstance(value, list):
-            return [unstyle(v) for v in value]
+            return [unstyle(item) for item in value]
+
         if isinstance(value, str):
             return unstyle(value)
+
         if column == "last_seen":
             return value.timestamp()
+
         return value
 
     return {
@@ -63,14 +60,13 @@ class IrcDB(Plugin):
     def _create_channel_on_join(self, mask, channel, **kwargs):
         if mask.nick == self.bot.nick:
             with self.bot.ircdb.session.begin() as session:
-                session.execute(
-                    insert(Channel).values(name=channel).on_conflict_do_nothing()
-                )
+                if not session.get(Channel, channel):
+                    session.add(Channel(name=channel))
 
     def _start_server(self):
         if self.config.get("enable_http_server", False):
             host = self.config.get("http_host", "127.0.0.1")
-            port = int(self.config.get("http_port", 8080))
+            port = self.config.get("http_port", 8080)
             self.logger.info(f"Starting HTTP server on {host}:{port}.")
             self._server_task = self.bot.create_task(self._run_server())
 
@@ -88,13 +84,15 @@ class IrcDB(Plugin):
 
     async def _run_server(self):
         host = self.config.get("http_host", "127.0.0.1")
-        port = int(self.config.get("http_port", 8080))
+        port = self.config.get("http_port", 8080)
+
         app = web.Application()
         app.router.add_get("/", self._json_handler)
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, host, port)
         await site.start()
+
         try:
             await asyncio.Future()
         finally:
@@ -110,4 +108,5 @@ class IrcDB(Plugin):
             users = session.scalars(
                 select(User).order_by(nullslast(desc(User.last_seen)))
             ).all()
+
         return orjson.dumps([_serialize_user(user) for user in users])

@@ -132,6 +132,7 @@ class UrlInfo(Plugin):
             if isinstance(result, InvalidIPAddressError):
                 self.logger.debug(f"Invalid IP address for {url}: {result}")
                 return
+
             if isinstance(result, ContentTypeNotAllowedError):
                 self.logger.debug(f"Content type not allowed for {url}: {result}")
             elif isinstance(result, (socket.gaierror, ValueError, RequestException)):
@@ -140,6 +141,7 @@ class UrlInfo(Plugin):
 
                 with contextlib.suppress(AttributeError, IndexError):
                     ex = ex.args[0].reason
+
                 error = style(ex, bold=True)
                 if isinstance(ex, RequestException):
                     if ex.response is not None and ex.response.reason is not None:
@@ -168,20 +170,22 @@ class UrlInfo(Plugin):
         async for chunk in await response.iter_content(_REQUEST_CHUNK_SIZE):
             if not chunk:
                 continue
+
             content_length = content.write(chunk.decode("UTF-8", errors="ignore"))
             if content_length > _RESPONSE_MAX_BYTES:
                 size = naturalsize(content_length)
                 raise ResponseBodyTooLarge(
                     f"Couldn't find the page title within {size}."
                 )
+
         return content.getvalue()
 
     async def _process_url(self, url: str):
         urlp = urlparse(url)
         if urlp.netloc.lower().removeprefix("www.") == "twitter.com":
             urlp = urlp._replace(netloc="nitter.net")
-        url = urlp.geturl()
 
+        url = urlp.geturl()
         hostname = urlp.hostname
         await self._validate_ip_address(hostname)
         hostname = hostname.removeprefix("www.")
@@ -198,7 +202,6 @@ class UrlInfo(Plugin):
             ).content_type
 
         title, size = await self._extract_title_and_size(response, content_type)
-
         return hostname, title, mimetype, size
 
     async def _validate_ip_address(self, hostname: str):
@@ -226,11 +229,13 @@ class UrlInfo(Plugin):
         title = None
         size = int(response.headers.get("Content-Length", 0))
         mimetype = None
+
         if content_type:
             ct_header: ContentTypeHeader = EmailPolicy.header_factory(
                 "content-type", content_type
             )
             mimetype = ct_header.content_type
+
         content_disposition = response.headers.get("Content-Disposition")
         if content_disposition:
             header: ContentDispositionHeader = EmailPolicy.header_factory(
