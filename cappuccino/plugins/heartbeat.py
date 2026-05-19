@@ -81,8 +81,8 @@ class Heartbeat(Plugin):
         self.logger.debug(f"Pinging {endpoint.url}")
         try:
             response = await self._http.request(
+                endpoint.method,
                 endpoint.url,
-                method=endpoint.method,
                 params=endpoint.params or None,
                 headers=endpoint.headers or None,
                 timeout=5,
