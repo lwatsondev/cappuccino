@@ -55,6 +55,13 @@ enable_http_server = false
 http_host = "127.0.0.1"
 http_port = 8080
 
+[[plugins.heartbeat.endpoints]]
+url = ""
+method = "GET"
+params = {}
+headers = {}
+interval = 30
+
 [plugins.influx]
 url = ""
 org = ""
