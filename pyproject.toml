@@ -28,11 +28,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "hadolint-py>=2.14.0.1",
-    "prek>=0.3.13",
+    "prek>=0.4.1",
     "pytest>=9.0.3",
     "pytest-check>=2.8.0",
     "pytest-postgresql>=8.0.0",
-    "ruff>=0.14.0",
+    "ruff>=0.15.14",
     "shellcheck-py>=0.10.0.1",
     "yamllint>=1.37.1",
 ]
