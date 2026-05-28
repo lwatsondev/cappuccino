@@ -56,7 +56,7 @@ class IrcDB(Plugin):
     def _on_connect(self, **kwargs):
         self._start_server()
 
-    @irc3.event(irc3.rfc.JOIN)
+    @irc3.event(rfc.JOIN)
     def _create_channel_on_join(self, mask, channel, **kwargs):
         if mask.nick == self.bot.nick:
             with self.bot.ircdb.session.begin() as session:
