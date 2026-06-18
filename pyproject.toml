@@ -7,34 +7,34 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.14,<3.15"
 dependencies = [
-    "alembic>=1.15.2",
-    "dynaconf>=3.2.0",
-    "beautifulsoup4>=4.13.4",
+    "alembic>=1.18.4",
+    "dynaconf>=3.2.13",
+    "beautifulsoup4>=4.15.0",
     "aiohttp>=3.14.1",
     "html5lib>=1.1",
-    "niquests[speedups]>=3.18.8",
-    "humanize>=4.12.3",
-    "influxdb-client>=1.48.0",
-    "irc3>=1.1.0",
+    "niquests[speedups]>=3.19.1",
+    "humanize>=4.15.0",
+    "influxdb-client>=1.50.0",
+    "irc3>=1.1.10",
     "ircstyle>=0.1.5",
     "markovify>=0.9.4",
     "psycopg[binary,pool]>=3.3.4",
-    "pylast>=5.5.0",
-    "sentry-sdk>=2.59.0",
-    "sqlalchemy>=2.0.0",
+    "pylast>=7.0.2",
+    "sentry-sdk>=2.63.0",
+    "sqlalchemy>=2.0.51",
     "urllib3>=2.7.0",
 ]
 
 [dependency-groups]
 dev = [
     "hadolint-py>=2.14.0.1",
-    "prek>=0.3.13",
-    "pytest>=9.0.3",
+    "prek>=0.4.5",
+    "pytest>=9.1.0",
     "pytest-check>=2.8.0",
-    "pytest-postgresql>=8.0.0",
-    "ruff>=0.14.0",
-    "shellcheck-py>=0.10.0.1",
-    "yamllint>=1.37.1",
+    "pytest-postgresql>=8.1.0",
+    "ruff>=0.15.18",
+    "shellcheck-py>=0.11.0.1",
+    "yamllint>=1.38.0",
 ]
 
 [tool.ruff]
