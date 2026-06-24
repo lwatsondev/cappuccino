@@ -66,6 +66,7 @@ class IrcDB(Plugin):
 
     def _start_server(self):
         if self.config.get("enable_http_server", False):
+            self._stop_server()
             host = self.config.get("http_host", "127.0.0.1")
             port = self.config.get("http_port", 8080)
             self.logger.info(f"Starting HTTP server on {host}:{port}.")
