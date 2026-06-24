@@ -25,11 +25,18 @@ from cappuccino.util import meta
 _log = logging.getLogger(__name__)
 
 
+_IGNORED_LOG_PREFIXES = ("connection lost", "closing old transport")
+
+
 def _before_send(event, hint):
     if "exc_info" in hint:
         _, exc_value, _ = hint["exc_info"]
         if isinstance(exc_value, RequestException | TimeoutError):
             return None
+
+    message = event.get("logentry", {}).get("message", "")
+    if message.startswith(_IGNORED_LOG_PREFIXES):
+        return None
 
     return event
 
