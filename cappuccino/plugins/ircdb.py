@@ -20,6 +20,7 @@ import orjson
 from aiohttp import web
 from irc3 import rfc
 from sqlalchemy import desc, inspect, nullslast, select
+from sqlalchemy.exc import OperationalError
 
 from cappuccino.db.models.ircdb import Channel, User
 from cappuccino.plugins import Plugin
@@ -100,7 +101,12 @@ class IrcDB(Plugin):
 
     async def _json_handler(self, request: web.Request) -> web.Response:
         loop = asyncio.get_running_loop()
-        data = await loop.run_in_executor(None, self._build_json)
+
+        try:
+            data = await loop.run_in_executor(None, self._build_json)
+        except OperationalError as exc:
+            raise web.HTTPServiceUnavailable from exc
+
         return web.Response(body=data, content_type="application/json")
 
     def _build_json(self) -> bytes:
