@@ -17,7 +17,8 @@ import re
 
 import irc3
 from irc3.plugins.command import command
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.postgresql import insert
 
 from cappuccino.db.models.triggers import Trigger
 from cappuccino.plugins import Plugin
@@ -46,17 +47,17 @@ class Triggers(Plugin):
 
     def _set_trigger(self, channel: str, name: str, response: str):
         with self.bot.ircdb.session.begin() as session:
-            trigger_model = session.scalar(
-                update(Trigger)
-                .returning(Trigger)
-                .where(func.lower(Trigger.name) == name.lower())
-                .where(func.lower(Trigger.channel) == channel.lower())
-                .values(response=response)
+            session.execute(
+                insert(Trigger)
+                .values(name=name, channel=channel, response=response)
+                .on_conflict_do_update(
+                    index_elements=[
+                        func.lower(Trigger.name),
+                        func.lower(Trigger.channel),
+                    ],
+                    set_={"response": response},
+                )
             )
-
-            if trigger_model is None:
-                trigger_model = Trigger(name=name, channel=channel, response=response)
-                session.add(trigger_model)
 
     def _delete_trigger(self, channel: str, name: str) -> bool:
         with self.bot.ircdb.session.begin() as session:

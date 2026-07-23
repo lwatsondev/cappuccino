@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from cappuccino.db.models.triggers import Trigger
 
@@ -29,6 +29,27 @@ def test_set(bot, db_session):
     assert row is not None
     assert row.response == "world"
     assert any("Trigger 'hello' set." in line for line in bot.sent)
+
+
+def test_set_case_insensitive_upsert(bot, db_session):
+    with patch("cappuccino.plugins.triggers.is_chanop", return_value=True):
+        bot.test(
+            ":nick!user@host PRIVMSG #channel :!trigger set CaseTest world",
+            show=False,
+        )
+        bot.test(
+            ":nick!user@host PRIVMSG #channel :!trigger set casetest updated",
+            show=False,
+        )
+
+    rows = db_session.scalars(
+        select(Trigger)
+        .where(func.lower(Trigger.name) == "casetest")
+        .where(func.lower(Trigger.channel) == "#channel")
+    ).all()
+    assert len(rows) == 1
+    assert rows[0].name == "CaseTest"
+    assert rows[0].response == "updated"
 
 
 def test_delete(bot, db_session):

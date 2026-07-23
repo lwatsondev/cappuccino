@@ -16,7 +16,8 @@
 import os
 from typing import Any
 
-from sqlalchemy import create_engine, func, select, update
+from sqlalchemy import create_engine, func, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import sessionmaker
 
 from cappuccino.db.models.ircdb import Channel, User
@@ -44,16 +45,14 @@ class IrcDatabase:
 
     def set_user_value(self, nick: str, key: str, value: Any = None):
         with self.session.begin() as session:
-            user = session.scalar(
-                update(User)
-                .returning(User)
-                .where(func.lower(User.nick) == nick.lower())
-                .values({key: value})
+            session.execute(
+                insert(User)
+                .values(nick=nick, **{key: value})
+                .on_conflict_do_update(
+                    index_elements=[func.lower(User.nick)],
+                    set_={key: value},
+                )
             )
-
-            if user is None:
-                user = User(nick=nick, **{key: value})
-                session.add(user)
 
     def get_channel_value(self, channel: str, key: str):
         with self.session() as session:
@@ -68,13 +67,11 @@ class IrcDatabase:
 
     def set_channel_value(self, channel: str, key: str, value: Any = None):
         with self.session.begin() as session:
-            row = session.scalar(
-                update(Channel)
-                .returning(Channel)
-                .where(func.lower(Channel.name) == channel.lower())
-                .values({key: value})
+            session.execute(
+                insert(Channel)
+                .values(name=channel, **{key: value})
+                .on_conflict_do_update(
+                    index_elements=[func.lower(Channel.name)],
+                    set_={key: value},
+                )
             )
-
-            if row is None:
-                row = Channel(name=channel, **{key: value})
-                session.add(row)

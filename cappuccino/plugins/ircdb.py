@@ -20,6 +20,7 @@ import orjson
 from aiohttp import web
 from irc3 import rfc
 from sqlalchemy import desc, inspect, nullslast, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import OperationalError
 
 from cappuccino.db.models.ircdb import Channel, User
@@ -61,8 +62,9 @@ class IrcDB(Plugin):
     def _create_channel_on_join(self, mask, channel, **kwargs):
         if mask.nick == self.bot.nick:
             with self.bot.ircdb.session.begin() as session:
-                if not session.get(Channel, channel):
-                    session.add(Channel(name=channel))
+                session.execute(
+                    insert(Channel).values(name=channel).on_conflict_do_nothing()
+                )
 
     def _start_server(self):
         if self.config.get("enable_http_server", False):

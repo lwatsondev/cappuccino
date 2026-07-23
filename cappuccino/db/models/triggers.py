@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with cappuccino.  If not, see <https://www.gnu.org/licenses/>.
 
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import ForeignKey, Index, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from cappuccino.db.models import BaseModel
@@ -27,3 +27,12 @@ class Trigger(BaseModel):
         Text, ForeignKey("channels.name"), nullable=False, primary_key=True
     )
     response: Mapped[str] = mapped_column(Text, nullable=False, unique=False)
+
+    __table_args__ = (
+        Index(
+            "ix_triggers_lower_name_lower_channel",
+            func.lower(name),
+            func.lower(channel),
+            unique=True,
+        ),
+    )

@@ -6,7 +6,9 @@ import pytest
 import pytest_check as check
 from aiohttp import web
 from aiohttp.test_utils import TestClient, TestServer
+from sqlalchemy import func, select
 
+from cappuccino.db.models.ircdb import Channel, User
 from cappuccino.plugins.ircdb import IrcDB
 
 PLUGINS = ["cappuccino.plugins.ircdb"]
@@ -26,6 +28,30 @@ def test_set_user_value_upsert(bot):
     bot.ircdb.set_user_value("upsertuser", "lastfm", "original")
     bot.ircdb.set_user_value("upsertuser", "lastfm", "updated")
     assert bot.ircdb.get_user_value("upsertuser", "lastfm") == "updated"
+
+
+def test_set_user_value_case_insensitive_upsert(bot, db_session):
+    bot.ircdb.set_user_value("Foo", "lastfm", "a")
+    bot.ircdb.set_user_value("foo", "lastfm", "b")
+
+    assert bot.ircdb.get_user_value("FOO", "lastfm") == "b"
+
+    rows = db_session.scalars(select(User).where(func.lower(User.nick) == "foo")).all()
+    assert len(rows) == 1
+    assert rows[0].nick == "Foo"
+
+
+def test_set_channel_value_case_insensitive_upsert(bot, db_session):
+    bot.ircdb.set_channel_value("#CapsChannel", "ai_enabled", value=True)
+    bot.ircdb.set_channel_value("#capschannel", "ai_enabled", value=False)
+
+    assert bot.ircdb.get_channel_value("#CAPSCHANNEL", "ai_enabled") is False
+
+    rows = db_session.scalars(
+        select(Channel).where(func.lower(Channel.name) == "#capschannel")
+    ).all()
+    assert len(rows) == 1
+    assert rows[0].name == "#CapsChannel"
 
 
 def test_del_user_value(bot):

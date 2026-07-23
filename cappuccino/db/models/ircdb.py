@@ -15,7 +15,7 @@
 
 from datetime import datetime  # noqa: TC003
 
-from sqlalchemy import JSON, Boolean, DateTime, Text, func
+from sqlalchemy import JSON, Boolean, DateTime, Index, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from cappuccino.db.models import BaseModel
@@ -26,6 +26,8 @@ class Channel(BaseModel):
 
     name: Mapped[str] = mapped_column(Text, nullable=False, primary_key=True)
     ai_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    __table_args__ = (Index("ix_channels_lower_name", func.lower(name), unique=True),)
 
 
 class User(BaseModel):
@@ -72,3 +74,5 @@ class User(BaseModel):
     last_seen: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=True, server_default=func.now()
     )
+
+    __table_args__ = (Index("ix_users_lower_nick", func.lower(nick), unique=True),)
