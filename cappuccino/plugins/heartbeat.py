@@ -60,6 +60,7 @@ class Heartbeat(Plugin):
         self._start_ping_loops()
 
     def _start_ping_loops(self):
+        self._stop_ping_loops()
         for endpoint in self._endpoints:
             self.logger.info(f"Starting heartbeat ping loop for {endpoint.url}.")
             self._ping_tasks.append(self.bot.create_task(self._ping_loop(endpoint)))
