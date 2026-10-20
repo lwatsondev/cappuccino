@@ -73,7 +73,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m -u 1000 testuser
 
-USER testuser
+USER 1000
 
 ENTRYPOINT []
 CMD ["uv", "run", "pytest"]
