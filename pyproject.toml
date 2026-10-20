@@ -10,7 +10,7 @@ dependencies = [
     "alembic>=1.18.4",
     "dynaconf>=3.2.13",
     "beautifulsoup4>=4.15.0",
-    "aiohttp>=3.14.3",
+    "aiohttp>=3.14.4",
     "html5lib>=1.1",
     "niquests[speedups]>=3.19.1",
     "humanize>=4.15.0",
@@ -22,7 +22,7 @@ dependencies = [
     "pylast>=7.0.2",
     "sentry-sdk>=2.63.0",
     "sqlalchemy>=2.0.51",
-    "urllib3>=2.7.0",
+    "urllib3>=2.8.0",
 ]
 
 [dependency-groups]
